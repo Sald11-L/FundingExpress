@@ -39,10 +39,11 @@
 
   /* NAV */
   header{position:sticky; top:0; z-index:60; background:rgba(255,255,255,0.9); backdrop-filter:saturate(180%) blur(10px); border-bottom:1px solid var(--line);}
-  .nav{display:flex; align-items:center; justify-content:space-between; height:68px;}
-  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.2rem; letter-spacing:-0.02em;}
-  .brand .logo-mark{width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg, var(--green), var(--green-700)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1rem; box-shadow:0 4px 12px rgba(11,143,78,0.35);}
-  .brand .ex{color:var(--green);}
+  .nav{display:flex; align-items:center; justify-content:space-between; min-height:72px; padding:10px 0; gap:16px;}
+  .brand{display:flex; align-items:center; flex:none;}
+  .brand .brand-logo{height:48px; width:auto; display:block;}
+  .foot-brand .brand-logo{height:52px; width:auto; display:block; background:#fff; border-radius:10px; padding:6px 10px;}
+  @media (max-width:600px){ .brand .brand-logo{height:38px;} }
   .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; font-weight:700; cursor:pointer; border:none; border-radius:10px; transition:transform .12s ease, background .2s ease, box-shadow .2s ease;}
   .btn-primary{background:var(--green); color:#fff; padding:12px 22px; font-size:0.95rem; box-shadow:0 6px 18px rgba(11,143,78,0.28);}
   .btn-primary:hover{background:var(--green-600); transform:translateY(-2px);}
@@ -117,7 +118,7 @@
   /* FOOTER */
   footer{background:var(--ink); color:#9fb3aa; padding:46px 0 30px;}
   .foot-top{display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; padding-bottom:26px; border-bottom:1px solid rgba(255,255,255,0.08);}
-  .foot-brand{color:#fff; font-weight:800; font-size:1.25rem; display:flex; align-items:center; gap:10px;}
+  .foot-brand{display:flex; align-items:center;}
   .foot-contact{display:flex; gap:34px; flex-wrap:wrap;}
   .foot-contact .fc b{display:block; color:#fff; font-size:0.95rem;}
   .foot-contact .fc span{font-size:0.85rem;}
@@ -130,7 +131,7 @@
 <!-- ============ NAV ============ -->
 <header>
   <div class="wrap nav">
-    <a href="index.html" class="brand"><span class="logo-mark">F</span>Funding<span class="ex">Express</span></a>
+    <a href="index.html" class="brand"><img class="brand-logo" src="assets/logo.png" alt="FundingExpressAi — Smart Capital. Fast."></a>
     <a href="index.html#apply" class="btn btn-primary">Check my funding &rarr;</a>
   </div>
 </header>
@@ -212,7 +213,7 @@
 <footer>
   <div class="wrap">
     <div class="foot-top">
-      <div class="foot-brand"><span class="logo-mark" style="width:30px;height:30px;border-radius:8px;">F</span>Funding<span style="color:var(--green);">Express</span></div>
+      <div class="foot-brand"><img class="brand-logo" src="assets/logo.png" alt="FundingExpressAi — Smart Capital. Fast."></div>
       <div class="foot-contact">
         <div class="fc"><b>Email</b><span>hello@fundingexpress.com</span></div>
         <div class="fc"><b>Response time</b><span>Same day, usually within hours</span></div>
@@ -220,8 +221,8 @@
     </div>
     <div class="foot-bottom">
       <p style="margin-bottom:14px;"><a href="privacy-terms.html" style="color:#cfe8dc; font-weight:700; text-decoration:none;">Privacy Policy &amp; Terms of Service</a><span style="margin:0 12px; color:#4d5f58;">&middot;</span><a href="index.html" style="color:#cfe8dc; font-weight:700; text-decoration:none;">Home</a></p>
-      <p style="margin-bottom:10px;">&copy; 2026 FundingExpress. All rights reserved.</p>
-      <p class="disc">FundingExpress is a funding marketplace and is not a lender. Funding estimates shown are educational, AI-generated projections based on the information you provide and general underwriting patterns — they are not an offer, a commitment to lend, or a guarantee of approval, amount, or terms. Actual offers depend on lender review of your full application and bank statements. Checking your estimate does not affect your credit score. Coverage and industries listed are general guidelines; final eligibility is determined during underwriting.</p>
+      <p style="margin-bottom:10px;">&copy; 2026 FundingExpressAi. All rights reserved.</p>
+      <p class="disc">FundingExpressAi is a funding marketplace and is not a lender. Funding estimates shown are educational, AI-generated projections based on the information you provide and general underwriting patterns — they are not an offer, a commitment to lend, or a guarantee of approval, amount, or terms. Actual offers depend on lender review of your full application and bank statements. Checking your estimate does not affect your credit score. Coverage and industries listed are general guidelines; final eligibility is determined during underwriting.</p>
     </div>
   </div>
 </footer>

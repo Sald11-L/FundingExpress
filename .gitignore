@@ -1,0 +1,7 @@
+Chatting history.txt
+Job description.txt
+Source/
+*.docx
+*.pdf
+.DS_Store
+Thumbs.db
