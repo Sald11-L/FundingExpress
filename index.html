@@ -75,9 +75,13 @@
     backdrop-filter:saturate(180%) blur(10px);
     border-bottom:1px solid var(--line);
   }
-  .nav{display:flex; align-items:center; justify-content:space-between; min-height:72px; padding:10px 0; gap:16px;}
-  .brand{display:flex; align-items:center; flex:none;}
-  .brand .brand-logo{height:48px; width:auto; display:block;}
+  .nav{display:flex; align-items:center; justify-content:space-between; min-height:84px; padding:12px 0; gap:16px;}
+  .brand{display:flex; align-items:center; gap:12px; flex:none;}
+  .brand .brand-mark{width:54px; height:54px; border-radius:13px; display:block; flex:none;}
+  .brand .brand-text{display:flex; flex-direction:column; gap:4px; line-height:1;}
+  .brand .brand-name{font-size:1.45rem; font-weight:800; letter-spacing:-0.03em; color:var(--ink);}
+  .brand .brand-name .ai{color:var(--green);}
+  .brand .brand-tag{font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green-700);}
   .nav-links{display:flex; align-items:center; gap:26px;}
   .nav-links a:not(.nav-cta){font-size:0.92rem; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
   .nav-links a:not(.nav-cta):hover{color:var(--green);}
@@ -85,11 +89,17 @@
     .nav-links{gap:12px;}
     .nav-links a:not(.nav-cta){font-size:0.78rem;}
     .nav .btn-primary{padding:10px 14px; font-size:0.85rem;}
-    .brand .brand-logo{height:38px;}
+    .brand .brand-mark{width:44px; height:44px; border-radius:11px;}
+    .brand .brand-name{font-size:1.15rem;}
+    .brand .brand-tag{font-size:0.68rem;}
   }
   @media (max-width:560px){
     .nav-links a:not(.nav-cta){font-size:0.72rem;}
     .nav-links{gap:8px;}
+    .brand{gap:8px;}
+    .brand .brand-mark{width:40px; height:40px;}
+    .brand .brand-name{font-size:1.02rem;}
+    .brand .brand-tag{font-size:0.62rem; letter-spacing:0.06em;}
   }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
@@ -243,8 +253,12 @@
   /* ---------------- FOOTER ---------------- */
   footer{background:var(--ink); color:#9fb3aa; padding:46px 0 30px;}
   .foot-top{display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; padding-bottom:26px; border-bottom:1px solid rgba(255,255,255,0.08);}
-  .foot-brand{display:flex; align-items:center;}
-  .foot-brand .brand-logo{height:52px; width:auto; display:block; background:#fff; border-radius:10px; padding:6px 10px;}
+  .foot-brand{display:flex; align-items:center; gap:12px;}
+  .foot-brand .brand-mark{width:48px; height:48px; border-radius:12px; display:block; flex:none;}
+  .foot-brand .brand-text{display:flex; flex-direction:column; gap:4px; line-height:1;}
+  .foot-brand .brand-name{font-size:1.3rem; font-weight:800; letter-spacing:-0.03em; color:#fff;}
+  .foot-brand .brand-name .ai{color:var(--green);}
+  .foot-brand .brand-tag{font-size:0.74rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#7dcea0;}
   .foot-contact{display:flex; gap:34px; flex-wrap:wrap;}
   .foot-contact .fc b{display:block; color:#fff; font-size:0.95rem;}
   .foot-contact .fc span{font-size:0.85rem;}
@@ -388,7 +402,13 @@
 <!-- ============ NAV ============ -->
 <header>
   <div class="wrap nav">
-    <a href="#" class="brand"><img class="brand-logo" src="assets/logo.png" alt="FundingExpressAi — Smart Capital. Fast."></a>
+    <a href="#" class="brand" aria-label="FundingExpressAi — Smart capital. Fast.">
+      <img class="brand-mark" src="assets/logo-icon.png" alt="">
+      <span class="brand-text">
+        <span class="brand-name">FundingExpress<span class="ai">Ai</span></span>
+        <span class="brand-tag">Smart capital. Fast.</span>
+      </span>
+    </a>
     <nav class="nav-links">
       <a href="states-and-industries.html">Where We Fund</a>
       <a href="funded-testimonials.html">Funded Testimonials</a>
@@ -405,7 +425,7 @@
       <h1>Working capital for your business, <span class="hl">without the wait.</span></h1>
       <p class="sub">Complete a short application, drag in your last four bank statements, and get an instant, AI-driven funding estimate on screen. No obligation. All credit types welcome.</p>
       <div class="hero-actions">
-        <button class="btn btn-primary btn-lg" data-apply>Check my funding &rarr;</button>
+        <button class="btn btn-primary btn-lg" data-apply>Apply Now &rarr;</button>
         <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
       </div>
       <div class="hero-trust">
@@ -452,7 +472,7 @@
         <p class="sub">You bring your business. We bring the lender. Nobody stands between you and your funding — which means nobody adds a markup on top of it.</p>
         <div class="tagline">// no processing fees &nbsp;·&nbsp; no commission &nbsp;·&nbsp; no broker markup</div>
         <div class="direct-actions">
-          <button class="btn btn-primary btn-lg" data-apply>Check my rate &rarr;</button>
+          <button class="btn btn-primary btn-lg" data-apply>Apply Now &rarr;</button>
           <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
         </div>
       </div>
@@ -611,7 +631,7 @@
     <div>
       <h2>Ready to see your number?</h2>
       <p>Get your instant, AI-driven funding estimate now. It's free, there's no obligation, and it won't affect your credit.</p>
-      <div style="margin-top:28px;"><button class="btn btn-primary btn-lg" data-apply>Start my application &rarr;</button></div>
+      <div style="margin-top:28px;"><button class="btn btn-primary btn-lg" data-apply>Apply Now &rarr;</button></div>
     </div>
     <div class="cta-qr">
       <img id="ctaQr" data-apply alt="Scan to apply on FundingExpress">
@@ -625,7 +645,13 @@
 <footer>
   <div class="wrap">
     <div class="foot-top">
-      <div class="foot-brand"><img class="brand-logo" src="assets/logo.png" alt="FundingExpressAi — Smart Capital. Fast."></div>
+      <div class="foot-brand" aria-label="FundingExpressAi — Smart capital. Fast.">
+        <img class="brand-mark" src="assets/logo-icon.png" alt="">
+        <span class="brand-text">
+          <span class="brand-name">FundingExpress<span class="ai">Ai</span></span>
+          <span class="brand-tag">Smart capital. Fast.</span>
+        </span>
+      </div>
       <div class="foot-contact">
         <div class="fc"><b>Email</b><span>hello@fundingexpress.com</span></div>
         <div class="fc"><b>Response time</b><span>Same day, usually within hours</span></div>
