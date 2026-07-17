@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FundingExpress — Fast Merchant Cash Advance | Instant AI Funding Estimate</title>
+<meta name="description" content="FundingExpress helps business owners get working capital fast. Complete a 3-minute application, upload your last four business bank statements, and get an instant, AI-driven funding estimate. All credit types welcome.">
+<meta name="keywords" content="merchant cash advance, MCA, business funding, working capital, small business loan, business cash advance, fast business funding, revenue based financing">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://fundingexpress.com/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="FundingExpress — Fast Merchant Cash Advance">
+<meta property="og:description" content="Apply in minutes. Upload your statements. Get an instant AI-driven funding estimate.">
+<meta property="og:url" content="https://fundingexpress.com/">
+<meta property="og:site_name" content="FundingExpress">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- SEO: FinancialService structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FinancialService",
+  "name": "FundingExpress",
+  "description": "Fast merchant cash advance and working capital for U.S. small businesses with an instant AI-driven funding estimate.",
+  "url": "https://fundingexpress.com/",
+  "areaServed": "US",
+  "priceRange": "$$"
+}
+</script>
+
+<style>
+  :root{
+    --green:#0B8F4E;
+    --green-600:#0A7B44;
+    --green-700:#086138;
+    --green-tint:#E8F5EE;
+    --green-tint-2:#D6EEE0;
+    --ink:#0B0F0D;
+    --ink-soft:#1A211E;
+    --paper:#FFFFFF;
+    --mist:#F5F8F6;
+    --line:#E4EAE6;
+    --muted:#5E6B64;
+    --danger:#C0392B;
+    --shadow:0 12px 40px rgba(11,15,13,0.10);
+    --shadow-sm:0 4px 16px rgba(11,15,13,0.06);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Manrope', system-ui, -apple-system, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:inherit; text-decoration:none;}
+  img{display:block; max-width:100%;}
+  ::selection{background:var(--green); color:#fff;}
+  :focus-visible{outline:3px solid var(--green); outline-offset:2px;}
+  .wrap{max-width:1280px; margin:0 auto; padding:0 32px;}
+  @media (max-width:560px){ .wrap{padding:0 20px;} }
+
+  /* ---------------- NAV ---------------- */
+  header{
+    position:sticky; top:0; z-index:60;
+    background:rgba(255,255,255,0.9);
+    backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; height:68px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.2rem; letter-spacing:-0.02em;}
+  .brand .logo-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(135deg, var(--green), var(--green-700));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:1rem;
+    box-shadow:0 4px 12px rgba(11,143,78,0.35);
+  }
+  .brand span.ex{color:var(--green);}
+  .nav-links{display:flex; align-items:center; gap:26px;}
+  .nav-links a:not(.nav-cta){font-size:0.92rem; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
+  .nav-links a:not(.nav-cta):hover{color:var(--green);}
+  @media (max-width:600px){
+    .nav-links{gap:14px;}
+    .nav-links a:not(.nav-cta){font-size:0.8rem;}
+    .nav .btn-primary{padding:10px 14px; font-size:0.85rem;}
+    .brand{font-size:1rem; gap:8px;}
+    .brand .logo-mark{width:30px; height:30px;}
+  }
+  @media (max-width:380px){
+    .nav-links a:not(.nav-cta){display:none;}
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:inherit; font-weight:700; cursor:pointer; border:none;
+    border-radius:10px; transition:transform .12s ease, background .2s ease, box-shadow .2s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--green); color:#fff; padding:12px 22px; font-size:0.95rem; box-shadow:0 6px 18px rgba(11,143,78,0.28);}
+  .btn-primary:hover{background:var(--green-600); transform:translateY(-2px);}
+  .btn-ghost{background:transparent; color:var(--ink); padding:12px 22px; font-size:0.95rem; border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--green); color:var(--green);}
+  .btn-lg{padding:16px 28px; font-size:1.02rem; border-radius:12px;}
+
+  /* ---------------- HERO ---------------- */
+  .hero{position:relative; padding:74px 0 70px; background:
+      radial-gradient(1200px 500px at 85% -10%, var(--green-tint) 0%, transparent 60%),
+      linear-gradient(180deg, #fff 0%, var(--mist) 100%);
+      border-bottom:1px solid var(--line); overflow:hidden;}
+  .hero-inner{display:grid; grid-template-columns:1.15fr 0.85fr; gap:54px; align-items:center;}
+  @media (max-width:900px){ .hero-inner{grid-template-columns:1fr; gap:38px;} }
+  .pill{
+    display:inline-flex; align-items:center;
+    background:linear-gradient(135deg, var(--green) 0%, var(--green-700) 100%); color:#fff;
+    font-size:1.02rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase;
+    padding:11px 22px; border-radius:100px; margin-bottom:24px;
+    box-shadow:0 8px 22px rgba(11,143,78,0.28);
+  }
+  @media (max-width:560px){ .pill{font-size:0.9rem; padding:10px 18px;} }
+  h1{font-size:clamp(2.4rem, 5.2vw, 3.9rem); line-height:1.04; letter-spacing:-0.03em; font-weight:800;}
+  h1 .hl{color:var(--green);}
+  .hero p.sub{font-size:1.15rem; color:var(--muted); max-width:520px; margin-top:22px;}
+  .hero-actions{display:flex; gap:14px; margin-top:34px;}
+  .hero-actions .btn{flex:0 1 auto;}
+  @media (max-width:560px){
+    .hero-actions .btn{flex:1 1 0; min-width:0; padding:15px 12px; font-size:0.92rem;}
+  }
+  .hero-trust{display:flex; gap:26px; margin-top:34px; flex-wrap:wrap;}
+  .hero-trust .item b{display:block; font-size:1.5rem; font-weight:800; letter-spacing:-0.02em;}
+  .hero-trust .item span{font-size:0.82rem; color:var(--muted); font-weight:600;}
+
+  /* Hero card / QR */
+  .hero-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:20px;
+    padding:26px; box-shadow:var(--shadow); position:relative;
+  }
+  .hero-card h3{font-size:1.05rem; font-weight:800; margin-bottom:4px;}
+  .hero-card p.mini{font-size:0.85rem; color:var(--muted); margin-bottom:18px;}
+  .est-preview{
+    color:#fff; border-radius:14px; padding:20px; margin-bottom:18px; background-color:var(--green-700);
+    background-image:radial-gradient(500px 200px at 100% 0, rgba(255,255,255,0.18), transparent 60%), linear-gradient(135deg, var(--green) 0%, var(--green-700) 100%);
+  }
+  .est-preview .label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.82); font-weight:600;}
+  .est-preview .amt{font-size:2rem; font-weight:800; letter-spacing:-0.02em; margin-top:6px;}
+  .qr-row{display:flex; align-items:center; gap:16px; padding-top:6px;}
+  .qr-box{width:96px; height:96px; border:1px solid var(--line); border-radius:12px; padding:7px; background:#fff; flex:none; cursor:pointer;}
+  .qr-box img{width:100%; height:100%;}
+  .qr-row .qr-txt b{display:block; font-size:0.9rem;}
+  .qr-row .qr-txt span{font-size:0.82rem; color:var(--muted);}
+
+  /* ---------------- TRUST STRIP ---------------- */
+  .trust-strip{background:var(--ink); color:#fff;}
+  .trust-strip .wrap{display:flex; align-items:center; justify-content:space-between; gap:20px; padding-top:18px; padding-bottom:18px; flex-wrap:wrap;}
+  .trust-strip .ts-item{display:flex; align-items:center; gap:9px; font-size:0.9rem; font-weight:600; color:#dfe8e3;}
+  .trust-strip .ts-item svg{flex:none;}
+
+  /* ---------------- SECTION SHELL ---------------- */
+  section.block{padding:84px 0;}
+  .section-head{max-width:660px; margin-bottom:52px;}
+  .eyebrow{font-size:0.78rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--green); margin-bottom:12px;}
+  .section-head h2{font-size:clamp(1.8rem, 3.6vw, 2.7rem); letter-spacing:-0.025em; font-weight:800; line-height:1.08;}
+  .section-head p{font-size:1.08rem; color:var(--muted); margin-top:14px;}
+
+  /* ---------------- DIRECT / NO MIDDLEMAN ---------------- */
+  .direct{background:var(--paper);}
+  .direct .eyebrow{display:flex; align-items:center; gap:10px;}
+  .direct .eyebrow::before{content:''; width:26px; height:2px; background:var(--green);}
+  .direct h2.big-strike{font-size:clamp(2.1rem, 5vw, 3.5rem); line-height:1.03; letter-spacing:-0.03em; font-weight:800; max-width:820px;}
+  .direct .strike{position:relative; color:#9aa39e;}
+  .direct .strike::after{content:''; position:absolute; left:-1.5%; right:-1.5%; top:52%; height:6px; background:var(--green); transform:rotate(-2.2deg); border-radius:3px;}
+  .direct .sub{font-size:1.12rem; color:var(--muted); max-width:540px; margin-top:22px;}
+  .direct .tagline{margin-top:18px; font-family:'IBM Plex Mono', monospace; font-size:0.85rem; color:var(--green-700); font-weight:500;}
+  .direct .direct-actions{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap;}
+  .compare-head{margin:58px 0 22px;}
+  .compare-title{font-size:clamp(1.5rem, 3vw, 2.1rem); font-weight:800; letter-spacing:-0.02em; margin-top:10px;}
+  .compare-wrap{overflow-x:auto; border-radius:14px; border:1px solid var(--line);}
+  table.compare{width:100%; border-collapse:collapse; min-width:620px;}
+  table.compare th, table.compare td{text-align:left; padding:16px 22px; border-top:1px solid var(--line); font-size:0.96rem;}
+  table.compare thead th{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:700; border-top:none; background:var(--mist);}
+  table.compare thead th.th-direct{color:var(--green-700); background:var(--green-tint);}
+  table.compare td:first-child, table.compare th:first-child{font-weight:700; color:var(--ink);}
+  table.compare .col-broker{color:var(--danger);}
+  table.compare .col-direct{color:var(--green-700); font-weight:700; background:rgba(11,143,78,0.04);}
+  table.compare tbody tr:hover td{background:var(--mist);}
+  table.compare tbody tr:hover td.col-direct{background:var(--green-tint);}
+
+  /* ---------------- STEPS ---------------- */
+  .steps{background:var(--mist); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .step-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  @media (max-width:760px){ .step-grid{grid-template-columns:1fr;} }
+  .step{background:#fff; border:1px solid var(--line); border-radius:16px; padding:30px 26px; position:relative; transition:transform .18s, box-shadow .18s;}
+  .step:hover{transform:translateY(-4px); box-shadow:var(--shadow);}
+  .step .num{width:44px; height:44px; border-radius:12px; background:var(--green-tint); color:var(--green-700); font-weight:800; display:flex; align-items:center; justify-content:center; font-size:1.05rem; margin-bottom:18px;}
+  .step h3{font-size:1.2rem; font-weight:800; margin-bottom:9px;}
+  .step p{color:var(--muted); font-size:0.96rem;}
+
+  /* ---------------- FEATURES ---------------- */
+  .feat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:22px;}
+  @media (max-width:820px){ .feat-grid{grid-template-columns:1fr;} }
+  .feat{display:flex; gap:16px; padding:26px; border:1px solid var(--line); border-radius:16px;}
+  .feat .ic{width:46px; height:46px; flex:none; border-radius:12px; background:var(--green-tint); display:flex; align-items:center; justify-content:center;}
+  .feat h4{font-size:1.1rem; font-weight:800; margin-bottom:6px;}
+  .feat p{color:var(--muted); font-size:0.95rem;}
+
+  /* ---------------- PRODUCTS ---------------- */
+  .products{background:var(--mist); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .prod-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  @media (max-width:820px){ .prod-grid{grid-template-columns:1fr;} }
+  .prod-card{background:#fff; border:1px solid var(--line); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; box-shadow:var(--shadow-sm); transition:transform .18s, box-shadow .18s;}
+  .prod-card:hover{transform:translateY(-5px); box-shadow:var(--shadow);}
+  .prod-head{color:#fff; padding:26px 24px; background-color:var(--green-700); background-image:radial-gradient(320px 170px at 100% 0, rgba(255,255,255,0.18), transparent 60%), linear-gradient(135deg, var(--green) 0%, var(--green-700) 100%);}
+  .prod-head .p-ic{width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,0.16); display:flex; align-items:center; justify-content:center; margin-bottom:16px;}
+  .prod-head h3{font-size:1.32rem; font-weight:800; letter-spacing:-0.01em;}
+  .prod-head p{font-size:0.87rem; color:rgba(255,255,255,0.8); margin-top:4px;}
+  .prod-head .p-amt{font-size:1.7rem; font-weight:800; letter-spacing:-0.02em; margin-top:12px; color:#fff;}
+  .prod-body{padding:22px 24px; flex:1;}
+  .prod-body ul{list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .prod-body li{display:flex; gap:10px; font-size:0.93rem; color:var(--ink-soft);}
+  .prod-body li::before{content:'✓'; color:var(--green); font-weight:800; flex:none;}
+  .prod-foot{padding:0 24px 24px;}
+  .prod-cta{display:block; width:100%; text-align:center; background:var(--green); color:#fff; padding:13px; border-radius:10px; font-weight:700; font-size:0.92rem; cursor:pointer; border:none; font-family:inherit; transition:background .2s;}
+  .prod-cta:hover{background:var(--green-700);}
+
+  /* ---------------- CTA ---------------- */
+  .cta{background:linear-gradient(135deg, var(--green), var(--green-700)); color:#fff;}
+  .cta-inner{display:grid; grid-template-columns:1.3fr 0.7fr; gap:48px; align-items:center;}
+  @media (max-width:820px){ .cta-inner{grid-template-columns:1fr; gap:32px;} }
+  .cta h2{font-size:clamp(1.9rem,3.6vw,2.7rem); letter-spacing:-0.025em; font-weight:800; line-height:1.1;}
+  .cta p{font-size:1.1rem; opacity:0.92; margin-top:14px; max-width:460px;}
+  .cta .btn-primary{background:#fff; color:var(--green-700); box-shadow:0 8px 22px rgba(0,0,0,0.2);}
+  .cta .btn-primary:hover{background:#f2f2f2;}
+  .cta-qr{background:#fff; border-radius:18px; padding:22px; text-align:center; color:var(--ink); box-shadow:var(--shadow);}
+  .cta-qr img{width:170px; height:170px; margin:0 auto 12px; cursor:pointer;}
+  .cta-qr b{display:block; font-size:0.98rem;}
+  .cta-qr span{font-size:0.84rem; color:var(--muted);}
+
+  /* ---------------- FOOTER ---------------- */
+  footer{background:var(--ink); color:#9fb3aa; padding:46px 0 30px;}
+  .foot-top{display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; padding-bottom:26px; border-bottom:1px solid rgba(255,255,255,0.08);}
+  .foot-brand{color:#fff; font-weight:800; font-size:1.25rem; display:flex; align-items:center; gap:10px;}
+  .foot-contact{display:flex; gap:34px; flex-wrap:wrap;}
+  .foot-contact .fc b{display:block; color:#fff; font-size:0.95rem;}
+  .foot-contact .fc span{font-size:0.85rem;}
+  .foot-bottom{padding-top:22px; font-size:0.8rem; line-height:1.7;}
+  .foot-bottom .disc{max-width:900px; color:#7d8f88;}
+  .foot-legal-links{margin-bottom:14px;}
+  .foot-legal-links a{color:#cfe8dc; font-weight:700; text-decoration:none;}
+  .foot-legal-links a:hover{color:#fff; text-decoration:underline;}
+  .foot-legal-links .sep{margin:0 12px; color:#4d5f58;}
+
+  /* =====================================================================
+     APPLICATION MODAL
+  ===================================================================== */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:200; background:rgba(11,15,13,0.55);
+    backdrop-filter:blur(4px); display:none; align-items:flex-start; justify-content:center;
+    padding:34px 16px; overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff; width:100%; max-width:720px; border-radius:20px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.35); overflow:hidden; animation:rise .32s ease;
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  .modal-head{padding:22px 28px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:2;}
+  .modal-head .mh-title{display:flex; align-items:center; gap:12px; font-weight:800; font-size:1.1rem; flex-wrap:wrap;}
+  .modal-close{background:var(--mist); border:none; width:36px; height:36px; border-radius:9px; font-size:1.3rem; cursor:pointer; color:var(--muted); line-height:1;}
+  .modal-close:hover{background:var(--line);}
+  .accuracy-pill{display:inline-flex; align-items:center; gap:6px; font-size:0.74rem; font-weight:700; color:var(--green-700); background:var(--green-tint); padding:5px 12px; border-radius:100px;}
+  .accuracy-pill svg{flex:none;}
+
+  .progress{padding:18px 28px 6px;}
+  .progress-track{height:6px; background:var(--mist); border-radius:6px; overflow:hidden;}
+  .progress-fill{height:100%; width:20%; background:var(--green); border-radius:6px; transition:width .35s ease;}
+  .progress-steps{display:flex; justify-content:space-between; margin-top:10px; font-size:0.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;}
+  .progress-steps span.active{color:var(--green);}
+  .progress-steps span.done{color:var(--ink);}
+  @media (max-width:560px){ .progress-steps span{font-size:0.6rem;} }
+
+  .modal-body{padding:24px 28px 8px;}
+  .fstep{display:none; animation:fade .3s ease;}
+  .fstep.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .fstep h3{font-size:1.28rem; font-weight:800; letter-spacing:-0.01em; margin-bottom:4px;}
+  .fstep .step-desc{color:var(--muted); font-size:0.94rem; margin-bottom:22px;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:560px){ .grid2{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column; margin-bottom:16px;}
+  .field.full{grid-column:1 / -1;}
+  label{font-size:0.8rem; font-weight:700; margin-bottom:6px; color:var(--ink-soft);}
+  label .opt{color:var(--muted); font-weight:500;}
+  input, select{
+    width:100%; padding:12px 13px; border:1.5px solid var(--line); border-radius:10px;
+    font-family:inherit; font-size:0.95rem; color:var(--ink); background:#fff; transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus{outline:none; border-color:var(--green); box-shadow:0 0 0 3px var(--green-tint);}
+  input.err, select.err{border-color:var(--danger);}
+  .hint{font-size:0.78rem; color:var(--muted); margin-top:5px;}
+  .field-err{color:var(--danger); font-size:0.78rem; margin-top:5px; display:none;}
+  .field-err.show{display:block;}
+
+  .seg{display:inline-flex; border:1.5px solid var(--line); border-radius:10px; overflow:hidden;}
+  .field .seg{align-self:flex-start;}
+  .seg button{background:#fff; border:none; padding:11px 20px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; color:var(--muted);}
+  .seg button.active{background:var(--green); color:#fff;}
+  .seg button + button{border-left:1.5px solid var(--line);}
+
+  .lender-block{background:var(--mist); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:6px;}
+  .lender-row{display:grid; grid-template-columns:1fr 0.8fr 40px; gap:10px; margin-bottom:10px; align-items:end;}
+  @media (max-width:560px){ .lender-row{grid-template-columns:1fr 1fr;} .lender-row .rm-wrap{grid-column:1 / -1;} }
+  .lender-row .field{margin-bottom:0;}
+  .rm-lender{background:#fff; border:1.5px solid var(--line); color:var(--danger); border-radius:9px; height:44px; cursor:pointer; font-size:1.1rem; line-height:1;}
+  .rm-lender:hover{background:#fff0ee; border-color:var(--danger);}
+  .add-lender{background:#fff; border:1.5px dashed var(--green); color:var(--green-700); border-radius:10px; padding:11px 16px; font-family:inherit; font-weight:700; font-size:0.88rem; cursor:pointer; margin-top:4px;}
+  .add-lender:hover{background:var(--green-tint);}
+
+  .rev-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:560px){ .rev-grid{grid-template-columns:1fr 1fr;} }
+  .rev-cell label{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--muted);}
+
+  .dropzone{
+    border:2px dashed var(--line); border-radius:14px; padding:32px 20px; text-align:center;
+    cursor:pointer; transition:border-color .2s, background .2s; background:var(--mist);
+  }
+  .dropzone:hover, .dropzone.drag{border-color:var(--green); background:var(--green-tint);}
+  .dropzone .dz-ic{width:52px; height:52px; margin:0 auto 12px; border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);}
+  .dropzone b{font-size:1rem;}
+  .dropzone p{font-size:0.85rem; color:var(--muted); margin-top:4px;}
+  .file-list{margin-top:16px; display:flex; flex-direction:column; gap:8px;}
+  .file-item{display:flex; align-items:center; gap:12px; background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px;}
+  .file-item .fi-ic{width:32px; height:32px; border-radius:8px; background:var(--green-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--green-700); font-weight:800; font-size:0.7rem;}
+  .file-item .fi-name{flex:1; font-size:0.88rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .file-item .fi-size{font-size:0.78rem; color:var(--muted);}
+  .file-item .fi-rm{background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; line-height:1;}
+  .file-item .fi-rm:hover{color:var(--danger);}
+  .secure-note{display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--green-700); background:var(--green-tint); padding:10px 13px; border-radius:10px; margin-top:16px;}
+  .consent-note{font-size:0.76rem; color:var(--muted); line-height:1.55; margin-top:14px;}
+  .consent-note a{color:var(--green-700); font-weight:700; text-decoration:underline;}
+
+  .modal-foot{display:flex; align-items:center; justify-content:space-between; padding:18px 28px; border-top:1px solid var(--line); background:#fff; position:sticky; bottom:0;}
+  .modal-foot .btn{border-radius:11px;}
+  .modal-foot .step-count{font-size:0.82rem; color:var(--muted); font-weight:600;}
+
+  .analyzing{text-align:center; padding:34px 10px 30px;}
+  .ai-orb{width:74px; height:74px; margin:0 auto 22px; border-radius:50%; background:conic-gradient(from 0deg, var(--green), var(--green-tint), var(--green)); animation:spin 1.1s linear infinite; display:flex; align-items:center; justify-content:center;}
+  .ai-orb::after{content:''; width:56px; height:56px; border-radius:50%; background:#fff;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .analyzing h3{font-size:1.3rem; margin-bottom:6px;}
+  .analyzing p{color:var(--muted);}
+  .ai-log{max-width:340px; margin:22px auto 0; text-align:left; font-family:'IBM Plex Mono', monospace; font-size:0.82rem;}
+  .ai-log div{padding:6px 0; color:var(--muted); opacity:0; transform:translateX(-6px); transition:all .3s;}
+  .ai-log div.show{opacity:1; transform:translateX(0); color:var(--ink);}
+  .ai-log div .ck{color:var(--green); font-weight:800;}
+
+  .result{text-align:center; padding:6px 4px 12px;}
+  .result-badge{display:inline-flex; align-items:center; gap:9px; padding:9px 18px; border-radius:100px; font-weight:800; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:18px;}
+  .result-badge.approved{background:var(--green-tint); color:var(--green-700);}
+  .result-badge.review{background:#FFF4E0; color:#9A6700;}
+  .result h3{font-size:1.5rem; letter-spacing:-0.01em; margin-bottom:6px;}
+  .result .r-sub{color:var(--muted); max-width:440px; margin:0 auto 22px;}
+  .estimate-box{
+    color:#fff; border-radius:16px; padding:26px; margin:0 auto 22px; max-width:440px; background-color:var(--green-700);
+    background-image:radial-gradient(400px 200px at 100% 0, rgba(255,255,255,0.2), transparent 60%), linear-gradient(135deg, var(--green) 0%, var(--green-700) 100%);
+  }
+  .estimate-box .eb-label{font-size:0.74rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.82); font-weight:700;}
+  .estimate-box .eb-amt{font-size:2.4rem; font-weight:800; letter-spacing:-0.02em; margin:8px 0 2px;}
+  .estimate-box .eb-meta{font-size:0.84rem; color:rgba(255,255,255,0.8);}
+  .result-facts{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:440px; margin:0 auto 22px; text-align:left;}
+  @media (max-width:480px){ .result-facts{grid-template-columns:1fr;} }
+  .rf{background:var(--mist); border:1px solid var(--line); border-radius:11px; padding:13px 14px;}
+  .rf .rf-l{font-size:0.74rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); font-weight:700;}
+  .rf .rf-v{font-size:1rem; font-weight:800; margin-top:3px;}
+  .result-fine{font-size:0.76rem; color:var(--muted); max-width:480px; margin:16px auto 0; line-height:1.6;}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header>
+  <div class="wrap nav">
+    <a href="#" class="brand"><span class="logo-mark">F</span>Funding<span class="ex">Express</span></a>
+    <nav class="nav-links">
+      <a href="states-and-industries.html">Where We Fund</a>
+      <a href="#" class="btn btn-primary nav-cta" data-apply>Apply now</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <div class="pill">AI-driven funding estimates</div>
+      <h1>Working capital for your business, <span class="hl">without the wait.</span></h1>
+      <p class="sub">Complete a short application, drag in your last four bank statements, and get an instant, AI-driven funding estimate on screen. No obligation. All credit types welcome.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" data-apply>Check my funding &rarr;</button>
+        <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
+      </div>
+      <div class="hero-trust">
+        <div class="item"><b>24&ndash;48h</b><span>Typical funding</span></div>
+        <div class="item"><b>$5M</b><span>Max advance</span></div>
+        <div class="item"><b>3 min</b><span>To apply</span></div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>Your instant estimate</h3>
+      <p class="mini">See what you may qualify for before you talk to anyone.</p>
+      <div class="est-preview">
+        <div class="label">Estimated advance range</div>
+        <div class="amt">$50K &ndash; $5M</div>
+      </div>
+      <div class="qr-row">
+        <div class="qr-box" data-apply title="Scan or tap to apply"><img id="heroQr" alt="Scan to apply on FundingExpress"></div>
+        <div class="qr-txt">
+          <b>Scan to apply</b>
+          <span>Point your phone camera here to start your application instantly.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<div class="trust-strip">
+  <div class="wrap">
+    <div class="ts-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" stroke="#0B8F4E" stroke-width="2" stroke-linejoin="round"/></svg> Bank-level data security</div>
+    <div class="ts-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0B8F4E" stroke-width="2"/><path d="M8 12l3 3 5-6" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> No impact to your credit to check</div>
+    <div class="ts-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" stroke="#0B8F4E" stroke-width="2" stroke-linejoin="round"/></svg> Instant AI-driven decisioning</div>
+    <div class="ts-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M12 3v18" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round"/></svg> All industries considered</div>
+  </div>
+</div>
+
+<!-- ============ DIRECT / NO MIDDLEMAN ============ -->
+<section class="block direct" id="direct">
+  <div class="wrap">
+    <div class="eyebrow">Merchant cash advance, direct</div>
+    <h2 class="big-strike">Remove the <span class="strike">middleman.</span><br>Deal with the lender.</h2>
+    <p class="sub">You bring your business. We bring the lender. Nobody stands between you and your funding — which means nobody adds a markup on top of it.</p>
+    <div class="tagline">// no processing fees &nbsp;·&nbsp; no commission &nbsp;·&nbsp; no broker markup</div>
+    <div class="direct-actions">
+      <button class="btn btn-primary btn-lg" data-apply>Check my rate &rarr;</button>
+      <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
+    </div>
+
+    <div class="compare-head">
+      <div class="eyebrow">Line by line</div>
+      <h3 class="compare-title">What a middleman usually adds</h3>
+    </div>
+    <div class="compare-wrap">
+      <table class="compare">
+        <thead>
+          <tr><th>Cost</th><th>Through a broker</th><th class="th-direct">FundingExpress</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Origination fee</td><td class="col-broker">2–5% of advance</td><td class="col-direct">$0</td></tr>
+          <tr><td>Broker commission</td><td class="col-broker">8–10%</td><td class="col-direct">$0</td></tr>
+          <tr><td>"Processing" fee</td><td class="col-broker">1–10%</td><td class="col-direct">$0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="block steps" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The process</div>
+      <h2>How it works.</h2>
+      <p>From first click to funded — simple, fast, and stress-free.</p>
+    </div>
+    <div class="step-grid">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Submit application</h3>
+        <p>Fill out our simple form and get an instant AI-driven estimate. Minimal paperwork — we guide you every step of the way.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Same day approval</h3>
+        <p>Get a decision fast — often the same day. All credit types welcome, no exceptions.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Get funded</h3>
+        <p>Money in your account in as little as 24 hours. Start growing your business right away.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Why FundingExpress</div>
+      <h2>Built to get you funded — fast.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="#0B8F4E"/></svg></div>
+        <div><h4>Instant AI estimate</h4><p>Skip the guesswork. Our model reads your revenue profile and returns a funding range in seconds.</p></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" stroke="#0B8F4E" stroke-width="2" stroke-linejoin="round"/></svg></div>
+        <div><h4>Secure by design</h4><p>Your documents and SSN are handled with bank-level care. We only ask for the last four of your SSN.</p></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0B8F4E" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><h4>Funded in 24&ndash;48 hours</h4><p>Once approved, capital can hit your account in as little as one business day.</p></div>
+      </div>
+      <div class="feat">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h10" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div><h4>All credit welcome</h4><p>We weigh your revenue and cash flow first. Bad credit doesn't automatically disqualify you.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCTS ============ -->
+<section class="block products" id="products">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">What we offer</div>
+      <h2>Our funding products.</h2>
+      <p>Three funding options built for every stage of your business growth.</p>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card">
+        <div class="prod-head">
+          <div class="p-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#fff" stroke-width="2"/></svg></div>
+          <h3>Merchant Cash Advance</h3>
+          <p>Fast capital based on your daily revenue</p>
+          <div class="p-amt">Up to $500K</div>
+        </div>
+        <div class="prod-body">
+          <ul>
+            <li>Funded in as little as 24&ndash;48 hours</li>
+            <li>No fixed monthly payments</li>
+            <li>Minimal paperwork required</li>
+            <li>All credit types considered</li>
+            <li>No collateral needed</li>
+          </ul>
+        </div>
+        <div class="prod-foot"><button class="prod-cta" data-apply data-product="Merchant Cash Advance">Apply for MCA &rarr;</button></div>
+      </div>
+
+      <div class="prod-card">
+        <div class="prod-head">
+          <div class="p-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-5 9 5" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M5 9v9m4-9v9m6-9v9m4-9v9M3 20h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h3>SBA Loan</h3>
+          <p>Government-backed low-interest financing</p>
+          <div class="p-amt">Up to $5M</div>
+        </div>
+        <div class="prod-body">
+          <ul>
+            <li>Lowest interest rates available</li>
+            <li>Repayment terms up to 25 years</li>
+            <li>Ideal for real estate &amp; equipment</li>
+            <li>Government-backed security</li>
+            <li>Lower monthly payments</li>
+          </ul>
+        </div>
+        <div class="prod-foot"><button class="prod-cta" data-apply data-product="SBA Loan">Apply for SBA &rarr;</button></div>
+      </div>
+
+      <div class="prod-card">
+        <div class="prod-head">
+          <div class="p-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#fff" stroke-width="2"/><path d="M2 9h20" stroke="#fff" stroke-width="2"/></svg></div>
+          <h3>Line of Credit</h3>
+          <p>Flexible revolving credit on demand</p>
+          <div class="p-amt">Up to $250K</div>
+        </div>
+        <div class="prod-body">
+          <ul>
+            <li>Pay interest only on what you use</li>
+            <li>Reusable &mdash; draw, repay, draw again</li>
+            <li>Perfect for cash flow management</li>
+            <li>Fast access to funds anytime</li>
+            <li>No prepayment penalties</li>
+          </ul>
+        </div>
+        <div class="prod-foot"><button class="prod-cta" data-apply data-product="Line of Credit">Apply for Line of Credit &rarr;</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA / QR ============ -->
+<section class="block cta">
+  <div class="wrap cta-inner">
+    <div>
+      <h2>Ready to see your number?</h2>
+      <p>Get your instant, AI-driven funding estimate now. It's free, there's no obligation, and it won't affect your credit.</p>
+      <div style="margin-top:28px;"><button class="btn btn-primary btn-lg" data-apply>Start my application &rarr;</button></div>
+    </div>
+    <div class="cta-qr">
+      <img id="ctaQr" data-apply alt="Scan to apply on FundingExpress">
+      <b>Scan to apply</b>
+      <span>Share this with a referral</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand"><span class="logo-mark" style="width:30px;height:30px;border-radius:8px;">F</span>Funding<span style="color:var(--green);">Express</span></div>
+      <div class="foot-contact">
+        <div class="fc"><b>Email</b><span>hello@fundingexpress.com</span></div>
+        <div class="fc"><b>Response time</b><span>Same day, usually within hours</span></div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-legal-links"><a href="privacy-terms.html">Privacy Policy &amp; Terms of Service</a><span class="sep">&middot;</span><a href="states-and-industries.html">Where We Fund</a></p>
+      <p style="margin-bottom:10px;">&copy; 2026 FundingExpress. All rights reserved.</p>
+      <p class="disc">FundingExpress is a funding marketplace and is not a lender. Funding estimates shown are educational, AI-generated projections based on the information you provide and general underwriting patterns — they are not an offer, a commitment to lend, or a guarantee of approval, amount, or terms. Actual offers depend on lender review of your full application and bank statements. Checking your estimate does not affect your credit score.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ APPLICATION MODAL ============ -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="mh-title" id="modalTitle">AI-Driven Estimate
+        <span class="accuracy-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#086138" stroke-width="2"/><path d="M8 12l3 3 5-6" stroke="#086138" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>95% AI-driven accuracy</span>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="progress" id="progressWrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-steps">
+        <span data-ps="1" class="active">Business</span>
+        <span data-ps="2">Debts</span>
+        <span data-ps="3">Owner</span>
+        <span data-ps="4">Statements</span>
+        <span data-ps="5">Estimate</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <!-- STEP 1: BUSINESS -->
+      <div class="fstep active" data-step="1">
+        <h3>Business information</h3>
+        <p class="step-desc">Tell us about the business that needs funding.</p>
+        <div class="grid2">
+          <div class="field full">
+            <label for="bizName">Business legal name</label>
+            <input type="text" id="bizName" data-req>
+            <div class="field-err">Please enter your business name.</div>
+          </div>
+          <div class="field">
+            <label for="dbaName">DBA name <span class="opt">(if different)</span></label>
+            <input type="text" id="dbaName">
+          </div>
+          <div class="field">
+            <label for="entityState">State of incorporation</label>
+            <select id="entityState">
+              <option value="">Select a state</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+              <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+              <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+              <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+              <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+              <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+              <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+              <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+              <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+              <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+              <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+              <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+              <option>Wisconsin</option><option>Wyoming</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="bizAddress">Business address</label>
+            <input type="text" id="bizAddress">
+          </div>
+          <div class="field">
+            <label for="bizEmail">Business email</label>
+            <input type="email" id="bizEmail" data-req>
+            <div class="field-err">Please enter a valid email.</div>
+          </div>
+          <div class="field">
+            <label for="bizPhone">Business phone</label>
+            <input type="tel" id="bizPhone" data-req>
+            <div class="field-err">Please enter a phone number.</div>
+          </div>
+          <div class="field">
+            <label for="ein">Federal Tax ID (EIN) <span class="opt">(optional)</span></label>
+            <input type="text" id="ein" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="startDate">Business start date <span class="opt">(under current ownership)</span></label>
+            <input type="date" id="startDate">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: EXISTING DEBT -->
+      <div class="fstep" data-step="2">
+        <h3>Existing financing</h3>
+        <p class="step-desc">Do you have any open merchant cash advance or business loan accounts?</p>
+        <div class="seg" id="hasDebtSeg" role="group" aria-label="Open MCA or loan accounts">
+          <button type="button" data-val="yes">Yes</button>
+          <button type="button" data-val="no" class="active">No</button>
+        </div>
+
+        <div class="lender-block hidden" id="lenderBlock" style="margin-top:18px;">
+          <div id="lenderRows"></div>
+          <button type="button" class="add-lender" id="addLender">+ Add another lender</button>
+        </div>
+
+        <div class="grid2" style="margin-top:24px;">
+          <div class="field">
+            <label>Does your business accept credit cards?</label>
+            <div class="seg" data-yesno="takesCards"><button type="button" data-val="yes">Yes</button><button type="button" data-val="no" class="active">No</button></div>
+          </div>
+          <div class="field">
+            <label>Do you own your home?</label>
+            <div class="seg" data-yesno="ownsHome"><button type="button" data-val="yes">Yes</button><button type="button" data-val="no" class="active">No</button></div>
+          </div>
+          <div class="field full">
+            <label>Would you like to explore our credit enhancement services?</label>
+            <div class="seg" data-yesno="creditEnhance"><button type="button" data-val="yes">Yes</button><button type="button" data-val="no" class="active">No</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: OWNER -->
+      <div class="fstep" data-step="3">
+        <h3>Owner information</h3>
+        <p class="step-desc">The primary owner or corporate officer.</p>
+        <div class="grid2">
+          <div class="field">
+            <label for="ownerName">Full name</label>
+            <input type="text" id="ownerName" data-req>
+            <div class="field-err">Please enter the owner's name.</div>
+          </div>
+          <div class="field">
+            <label for="ownerTitle">Title</label>
+            <input type="text" id="ownerTitle">
+          </div>
+          <div class="field">
+            <label for="ownership">Ownership %</label>
+            <input type="number" id="ownership" min="0" max="100">
+          </div>
+          <div class="field">
+            <label for="ownerDob">Date of birth</label>
+            <input type="date" id="ownerDob">
+          </div>
+          <div class="field full">
+            <label for="homeAddress">Home address</label>
+            <input type="text" id="homeAddress">
+          </div>
+          <div class="field">
+            <label for="ssn4">SSN &mdash; last 4 digits only</label>
+            <input type="text" id="ssn4" inputmode="numeric" maxlength="4">
+            <div class="hint">We never ask for your full Social Security number.</div>
+          </div>
+          <div class="field">
+            <label for="creditBand">Estimated personal credit</label>
+            <select id="creditBand">
+              <option value="excellent">Excellent (700+)</option>
+              <option value="good">Good (650&ndash;699)</option>
+              <option value="fair">Fair (580&ndash;649)</option>
+              <option value="poor">Poor (under 580)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ownerPhone">Cell phone</label>
+            <input type="tel" id="ownerPhone">
+          </div>
+          <div class="field">
+            <label for="secondOwner">Second owner <span class="opt">(optional)</span></label>
+            <input type="text" id="secondOwner">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: STATEMENTS -->
+      <div class="fstep" data-step="4">
+        <h3>Revenue &amp; bank statements</h3>
+        <p class="step-desc">Enter your total revenue for each of the last four months, then attach the matching statements.</p>
+        <label style="margin-bottom:10px;">Last 4 months &mdash; total monthly revenue ($)</label>
+        <div class="rev-grid" id="revGrid"></div>
+        <div class="field-err" id="revErr" style="margin-bottom:8px;">Please enter revenue for all four months.</div>
+
+        <label style="margin:18px 0 8px;">Upload your 4 most recent business bank statements</label>
+        <div class="dropzone" id="dropzone">
+          <div class="dz-ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="#0B8F4E" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <b>Drag &amp; drop your statements here</b>
+          <p>or click to browse &middot; PDF, PNG or JPG</p>
+          <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg" class="hidden">
+        </div>
+        <div class="file-list" id="fileList"></div>
+        <div class="secure-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" stroke="#086138" stroke-width="2" stroke-linejoin="round"/></svg>
+          Your files are handled securely and used only to verify your application.
+        </div>
+        <p class="consent-note">By selecting &ldquo;Get my estimate,&rdquo; you agree to our <a href="privacy-terms.html" target="_blank" rel="noopener">Privacy Policy &amp; Terms of Service</a> and consent to be contacted by FundingExpress and its funding partners by phone, text message, and email regarding your inquiry &mdash; including via automated technology. Consent is not a condition of any purchase, and your estimate is educational only, not an offer or guarantee of funding.</p>
+      </div>
+
+      <!-- STEP 5: ANALYZING + RESULT -->
+      <div class="fstep" data-step="5">
+        <div class="analyzing" id="analyzing">
+          <div class="ai-orb"></div>
+          <h3>Analyzing your application&hellip;</h3>
+          <p>Our AI is reviewing your revenue profile.</p>
+          <div class="ai-log" id="aiLog">
+            <div><span class="ck">&#10003;</span> Verifying business details</div>
+            <div><span class="ck">&#10003;</span> Reading monthly revenue trend</div>
+            <div><span class="ck">&#10003;</span> Checking cash-flow stability</div>
+            <div><span class="ck">&#10003;</span> Matching to lender criteria</div>
+            <div><span class="ck">&#10003;</span> Calculating your funding range</div>
+          </div>
+        </div>
+        <div class="result hidden" id="result"></div>
+      </div>
+    </div>
+
+    <div class="modal-foot" id="modalFoot">
+      <button class="btn btn-ghost" id="backBtn" style="visibility:hidden;">&larr; Back</button>
+      <span class="step-count" id="stepCount">Step 1 of 4</span>
+      <button class="btn btn-primary" id="nextBtn">Continue &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- QR CODES ---------- */
+  function buildQr(){
+    var base = (location.protocol === 'http:' || location.protocol === 'https:')
+      ? location.origin + location.pathname
+      : 'https://fundingexpress.com/';
+    var target = base + '#apply';
+    var src = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=0&color=0B0F0D&data=' + encodeURIComponent(target);
+    ['heroQr','ctaQr'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.src = src;
+    });
+  }
+  buildQr();
+
+  /* ---------- MODAL OPEN/CLOSE ---------- */
+  var modal = document.getElementById('modal');
+  var TOTAL_INPUT_STEPS = 4;
+  var selectedProduct = 'Merchant Cash Advance';
+
+  function openModal(product){
+    if (product) selectedProduct = product;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-apply]').forEach(function(el){
+    el.addEventListener('click', function(e){ e.preventDefault(); openModal(el.getAttribute('data-product')); });
+  });
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+  if (location.hash === '#apply') { setTimeout(function(){ openModal(); }, 350); }
+
+  /* ---------- STEP NAVIGATION ---------- */
+  var current = 1;
+  var fsteps = document.querySelectorAll('.fstep');
+  var progressFill = document.getElementById('progressFill');
+  var progressSteps = document.querySelectorAll('.progress-steps span');
+  var backBtn = document.getElementById('backBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var stepCount = document.getElementById('stepCount');
+
+  function showStep(n){
+    current = n;
+    fsteps.forEach(function(s){ s.classList.toggle('active', +s.dataset.step === n); });
+    progressFill.style.width = (n / 5 * 100) + '%';
+    progressSteps.forEach(function(sp){
+      var i = +sp.dataset.ps;
+      sp.classList.toggle('active', i === n);
+      sp.classList.toggle('done', i < n);
+    });
+    backBtn.style.visibility = (n > 1 && n < 5) ? 'visible' : 'hidden';
+    if (n === 5){
+      stepCount.textContent = 'Your estimate';
+      nextBtn.classList.add('hidden');
+    } else {
+      stepCount.textContent = 'Step ' + n + ' of ' + TOTAL_INPUT_STEPS;
+      nextBtn.classList.remove('hidden');
+      nextBtn.innerHTML = (n === TOTAL_INPUT_STEPS) ? 'Get my estimate &rarr;' : 'Continue &rarr;';
+    }
+    var mc = modal.querySelector('.modal');
+    if (mc) mc.scrollTop = 0;
+  }
+
+  backBtn.addEventListener('click', function(){ if (current > 1) showStep(current - 1); });
+  nextBtn.addEventListener('click', function(){
+    if (!validateStep(current)) return;
+    if (current === TOTAL_INPUT_STEPS){ showStep(5); runAnalysis(); }
+    else { showStep(current + 1); }
+  });
+
+  /* ---------- VALIDATION ---------- */
+  function markErr(input, on){
+    input.classList.toggle('err', on);
+    var err = input.parentElement.querySelector('.field-err');
+    if (err) err.classList.toggle('show', on);
+  }
+  function validateStep(n){
+    var stepEl = document.querySelector('.fstep[data-step="' + n + '"]');
+    var ok = true;
+    if (n === 4){
+      var revErr = document.getElementById('revErr');
+      var filled = revInputs.every(function(i){ return i.value !== '' && Number(i.value) >= 0; });
+      revErr.classList.toggle('show', !filled);
+      revInputs.forEach(function(i){ i.classList.toggle('err', i.value === ''); });
+      return filled;
+    }
+    stepEl.querySelectorAll('[data-req]').forEach(function(input){
+      var val = input.value.trim();
+      var bad = val === '';
+      if (!bad && input.type === 'email'){ bad = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val); }
+      markErr(input, bad);
+      if (bad) ok = false;
+    });
+    return ok;
+  }
+  document.querySelectorAll('[data-req]').forEach(function(input){
+    input.addEventListener('input', function(){ if (input.classList.contains('err')) markErr(input, false); });
+  });
+
+  /* ---------- YES/NO SEGMENTS ---------- */
+  var state = { hasDebt:'no', takesCards:'no', ownsHome:'no', creditEnhance:'no' };
+  document.querySelectorAll('.seg[data-yesno]').forEach(function(seg){
+    var key = seg.dataset.yesno;
+    seg.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        state[key] = btn.dataset.val;
+      });
+    });
+  });
+
+  var lenderBlock = document.getElementById('lenderBlock');
+  document.querySelectorAll('#hasDebtSeg button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#hasDebtSeg button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      state.hasDebt = btn.dataset.val;
+      lenderBlock.classList.toggle('hidden', state.hasDebt !== 'yes');
+      if (state.hasDebt === 'yes' && lenderRows.children.length === 0) addLenderRow();
+    });
+  });
+
+  /* ---------- DYNAMIC LENDER ROWS ---------- */
+  var lenderRows = document.getElementById('lenderRows');
+  function addLenderRow(){
+    var row = document.createElement('div');
+    row.className = 'lender-row';
+    row.innerHTML =
+      '<div class="field"><label>Lender name</label><input type="text" class="l-name"></div>' +
+      '<div class="field"><label>Balance owed ($)</label><input type="number" class="l-amt" min="0"></div>' +
+      '<div class="rm-wrap"><button type="button" class="rm-lender" aria-label="Remove">&times;</button></div>';
+    row.querySelector('.rm-lender').addEventListener('click', function(){ row.remove(); });
+    lenderRows.appendChild(row);
+  }
+  document.getElementById('addLender').addEventListener('click', addLenderRow);
+
+  /* ---------- REVENUE INPUTS ---------- */
+  var revGrid = document.getElementById('revGrid');
+  var revInputs = [];
+  (function buildRevInputs(){
+    var now = new Date();
+    for (var k = 4; k >= 1; k--){
+      var d = new Date(now.getFullYear(), now.getMonth() - k, 1);
+      var label = d.toLocaleString('en-US', { month:'short', year:'numeric' });
+      var cell = document.createElement('div');
+      cell.className = 'rev-cell field';
+      cell.style.marginBottom = '0';
+      cell.innerHTML = '<label>' + label + '</label><input type="number" min="0" inputmode="numeric">';
+      revGrid.appendChild(cell);
+      var input = cell.querySelector('input');
+      input.addEventListener('input', function(){ this.classList.remove('err'); document.getElementById('revErr').classList.remove('show'); });
+      revInputs.push(input);
+    }
+  })();
+
+  /* ---------- DROPZONE ---------- */
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  var fileList = document.getElementById('fileList');
+  var files = [];
+
+  dropzone.addEventListener('click', function(){ fileInput.click(); });
+  dropzone.addEventListener('dragover', function(e){ e.preventDefault(); dropzone.classList.add('drag'); });
+  dropzone.addEventListener('dragleave', function(){ dropzone.classList.remove('drag'); });
+  dropzone.addEventListener('drop', function(e){ e.preventDefault(); dropzone.classList.remove('drag'); addFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', function(){ addFiles(fileInput.files); });
+
+  function addFiles(list){
+    Array.prototype.forEach.call(list, function(f){ if (files.length < 6) files.push(f); });
+    renderFiles();
+  }
+  function fmtSize(bytes){
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(0) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+  function renderFiles(){
+    fileList.innerHTML = '';
+    files.forEach(function(f, idx){
+      var ext = (f.name.split('.').pop() || 'FILE').toUpperCase();
+      var item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML =
+        '<div class="fi-ic">' + ext.slice(0,3) + '</div>' +
+        '<div class="fi-name">' + f.name + '</div>' +
+        '<div class="fi-size">' + fmtSize(f.size) + '</div>' +
+        '<button type="button" class="fi-rm" aria-label="Remove">&times;</button>';
+      item.querySelector('.fi-rm').addEventListener('click', function(){ files.splice(idx, 1); renderFiles(); });
+      fileList.appendChild(item);
+    });
+  }
+
+  /* ---------- AI ANALYSIS + RESULT ---------- */
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+
+  function estimateFromRevenue(avg){
+    if (avg >= 500000) return { low:400000, high:1000000, plus:true, tier:'strong' };
+    if (avg >= 250000) return { low:200000, high:400000, tier:'strong' };
+    if (avg >= 100000) return { low:80000,  high:200000, tier:'strong' };
+    if (avg >= 50000)  return { low:40000,  high:80000,  tier:'good' };
+    if (avg >= 20000)  return { low:15000,  high:40000,  tier:'good' };
+    if (avg >= 10000)  return { low:5000,   high:15000,  tier:'fair' };
+    return { low:0, high:0, tier:'below' };
+  }
+  function totalDebt(){
+    var sum = 0;
+    lenderRows.querySelectorAll('.l-amt').forEach(function(i){ sum += Number(i.value) || 0; });
+    return sum;
+  }
+
+  function runAnalysis(){
+    document.getElementById('analyzing').classList.remove('hidden');
+    document.getElementById('result').classList.add('hidden');
+    var logs = document.querySelectorAll('#aiLog div');
+    logs.forEach(function(l){ l.classList.remove('show'); });
+    logs.forEach(function(l, i){ setTimeout(function(){ l.classList.add('show'); }, 300 + i * 420); });
+    setTimeout(renderResult, 300 + logs.length * 420 + 500);
+  }
+
+  function renderResult(){
+    var revs = revInputs.map(function(i){ return Number(i.value) || 0; });
+    var avg = revs.reduce(function(a,b){ return a+b; }, 0) / revs.length;
+    var est = estimateFromRevenue(avg);
+
+    var debt = state.hasDebt === 'yes' ? totalDebt() : 0;
+    var adjusted = false;
+    if (debt > 0 && est.high > 0){
+      var factor = Math.max(0.55, 1 - (debt / (avg * 4 || 1)) * 0.5);
+      est.high = Math.max(est.low, est.high * factor);
+      adjusted = true;
+    }
+
+    var bizName = document.getElementById('bizName').value.trim() || 'your business';
+    var wrap = document.getElementById('result');
+    var badge, headline, sub, amount;
+
+    if (est.tier === 'below'){
+      badge = '<span class="result-badge review"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9A6700" stroke-width="2"/><path d="M12 8v5" stroke="#9A6700" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1" fill="#9A6700"/></svg> Let\u2019s talk</span>';
+      headline = 'We need a closer look';
+      sub = 'Your average monthly revenue is just under our typical minimum, but options may still exist. A funding specialist will reach out to review your file personally.';
+      amount = '<div class="eb-label">Estimated range</div><div class="eb-amt">Custom review</div><div class="eb-meta">Based on ' + fmt(avg) + '/mo average revenue</div>';
+    } else {
+      badge = '<span class="result-badge approved"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#086138" stroke-width="2"/><path d="M8 12l3 3 5-6" stroke="#086138" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Pre-qualified</span>';
+      headline = 'Good news for ' + bizName + '!';
+      sub = 'Based on your revenue profile, our AI estimates you could qualify for the following advance range. A specialist will confirm your final offer.';
+      var hi = fmt(est.high) + (est.plus ? '+' : '');
+      amount = '<div class="eb-label">Estimated advance range</div><div class="eb-amt">' + fmt(est.low) + ' &ndash; ' + hi + '</div><div class="eb-meta">Based on ' + fmt(avg) + '/mo average revenue</div>';
+    }
+
+    var creditText = { excellent:'Excellent (700+)', good:'Good (650\u2013699)', fair:'Fair (580\u2013649)', poor:'Poor (under 580)' }[document.getElementById('creditBand').value];
+
+    wrap.innerHTML =
+      badge +
+      '<h3>' + headline + '</h3>' +
+      '<p class="r-sub">' + sub + '</p>' +
+      '<div class="estimate-box">' + amount + '</div>' +
+      '<div class="result-facts">' +
+        '<div class="rf"><div class="rf-l">Product of interest</div><div class="rf-v">' + selectedProduct + '</div></div>' +
+        '<div class="rf"><div class="rf-l">Avg monthly revenue</div><div class="rf-v">' + fmt(avg) + '</div></div>' +
+        '<div class="rf"><div class="rf-l">Existing balances</div><div class="rf-v">' + (debt > 0 ? fmt(debt) : 'None') + '</div></div>' +
+        '<div class="rf"><div class="rf-l">Credit profile</div><div class="rf-v">' + creditText + '</div></div>' +
+      '</div>' +
+      (adjusted ? '<p class="result-fine">Your estimated ceiling reflects your existing advance balance(s). Paying down or consolidating current positions could increase what you qualify for.</p>' : '') +
+      '<div style="margin-top:8px;"><button class="btn btn-primary btn-lg" id="finishBtn">Lock in my offer &rarr;</button></div>' +
+      '<p class="result-fine">This is an educational, AI-generated estimate &mdash; not an offer or a guarantee of approval, amount, or terms. Final offers depend on full lender review of your application and statements. Checking does not affect your credit score.</p>';
+
+    document.getElementById('analyzing').classList.add('hidden');
+    wrap.classList.remove('hidden');
+
+    document.getElementById('finishBtn').addEventListener('click', function(){
+      this.textContent = 'Received \u2713 A specialist will call you shortly';
+      this.disabled = true;
+      this.style.opacity = '0.85';
+    });
+  }
+})();
+</script>
+</body>
+</html>
