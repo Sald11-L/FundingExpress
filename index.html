@@ -81,14 +81,15 @@
   .nav-links{display:flex; align-items:center; gap:26px;}
   .nav-links a:not(.nav-cta){font-size:0.92rem; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
   .nav-links a:not(.nav-cta):hover{color:var(--green);}
-  @media (max-width:600px){
-    .nav-links{gap:14px;}
-    .nav-links a:not(.nav-cta){font-size:0.8rem;}
+  @media (max-width:820px){
+    .nav-links{gap:12px;}
+    .nav-links a:not(.nav-cta){font-size:0.78rem;}
     .nav .btn-primary{padding:10px 14px; font-size:0.85rem;}
     .brand .brand-logo{height:38px;}
   }
-  @media (max-width:380px){
-    .nav-links a:not(.nav-cta){display:none;}
+  @media (max-width:560px){
+    .nav-links a:not(.nav-cta){font-size:0.72rem;}
+    .nav-links{gap:8px;}
   }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
@@ -165,12 +166,17 @@
   .direct{background:var(--paper);}
   .direct .eyebrow{display:flex; align-items:center; gap:10px;}
   .direct .eyebrow::before{content:''; width:26px; height:2px; background:var(--green);}
+  .direct-top{display:grid; grid-template-columns:1.05fr 0.95fr; gap:48px; align-items:center; margin-bottom:10px;}
+  @media (max-width:900px){ .direct-top{grid-template-columns:1fr; gap:32px;} }
   .direct h2.big-strike{font-size:clamp(2.1rem, 5vw, 3.5rem); line-height:1.03; letter-spacing:-0.03em; font-weight:800; max-width:820px;}
   .direct .strike{position:relative; color:#9aa39e;}
   .direct .strike::after{content:''; position:absolute; left:-1.5%; right:-1.5%; top:52%; height:6px; background:var(--green); transform:rotate(-2.2deg); border-radius:3px;}
   .direct .sub{font-size:1.12rem; color:var(--muted); max-width:540px; margin-top:22px;}
   .direct .tagline{margin-top:18px; font-family:'IBM Plex Mono', monospace; font-size:0.85rem; color:var(--green-700); font-weight:500;}
   .direct .direct-actions{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap;}
+  .direct-photo{border-radius:20px; overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow); aspect-ratio:4/5; background:var(--mist);}
+  .direct-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  @media (max-width:900px){ .direct-photo{aspect-ratio:16/11; max-height:380px;} }
   .compare-head{margin:58px 0 22px;}
   .compare-title{font-size:clamp(1.5rem, 3vw, 2.1rem); font-weight:800; letter-spacing:-0.02em; margin-top:10px;}
   .compare-wrap{overflow-x:auto; border-radius:14px; border:1px solid var(--line);}
@@ -385,6 +391,7 @@
     <a href="#" class="brand"><img class="brand-logo" src="assets/logo.png" alt="FundingExpressAi — Smart Capital. Fast."></a>
     <nav class="nav-links">
       <a href="states-and-industries.html">Where We Fund</a>
+      <a href="funded-testimonials.html">Funded Testimonials</a>
       <a href="#" class="btn btn-primary nav-cta" data-apply>Apply now</a>
     </nav>
   </div>
@@ -438,13 +445,20 @@
 <!-- ============ DIRECT / NO MIDDLEMAN ============ -->
 <section class="block direct" id="direct">
   <div class="wrap">
-    <div class="eyebrow">Merchant cash advance, direct</div>
-    <h2 class="big-strike">Remove the <span class="strike">middleman.</span><br>Deal with the lender.</h2>
-    <p class="sub">You bring your business. We bring the lender. Nobody stands between you and your funding — which means nobody adds a markup on top of it.</p>
-    <div class="tagline">// no processing fees &nbsp;·&nbsp; no commission &nbsp;·&nbsp; no broker markup</div>
-    <div class="direct-actions">
-      <button class="btn btn-primary btn-lg" data-apply>Check my rate &rarr;</button>
-      <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
+    <div class="direct-top">
+      <div>
+        <div class="eyebrow">Merchant cash advance, direct</div>
+        <h2 class="big-strike">Remove the <span class="strike">middleman.</span><br>Deal with the lender.</h2>
+        <p class="sub">You bring your business. We bring the lender. Nobody stands between you and your funding — which means nobody adds a markup on top of it.</p>
+        <div class="tagline">// no processing fees &nbsp;·&nbsp; no commission &nbsp;·&nbsp; no broker markup</div>
+        <div class="direct-actions">
+          <button class="btn btn-primary btn-lg" data-apply>Check my rate &rarr;</button>
+          <a href="#how" class="btn btn-ghost btn-lg">See how it works</a>
+        </div>
+      </div>
+      <div class="direct-photo">
+        <img src="assets/funded-success.jpg" alt="Business owner completing a fast, successful payment — funded with FundingExpressAi">
+      </div>
     </div>
 
     <div class="compare-head">
@@ -618,7 +632,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <p class="foot-legal-links"><a href="privacy-terms.html">Privacy Policy &amp; Terms of Service</a><span class="sep">&middot;</span><a href="states-and-industries.html">Where We Fund</a></p>
+      <p class="foot-legal-links"><a href="privacy-terms.html">Privacy Policy &amp; Terms of Service</a><span class="sep">&middot;</span><a href="states-and-industries.html">Where We Fund</a><span class="sep">&middot;</span><a href="funded-testimonials.html">Funded Testimonials</a></p>
       <p style="margin-bottom:10px;">&copy; 2026 FundingExpressAi. All rights reserved.</p>
       <p class="disc">FundingExpressAi is a funding marketplace and is not a lender. Funding estimates shown are educational, AI-generated projections based on the information you provide and general underwriting patterns — they are not an offer, a commitment to lend, or a guarantee of approval, amount, or terms. Actual offers depend on lender review of your full application and bank statements. Checking your estimate does not affect your credit score.</p>
     </div>
