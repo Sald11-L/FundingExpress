@@ -7,14 +7,14 @@
 <meta name="description" content="FundingExpress helps business owners get working capital fast. Complete a 3-minute application, upload your last four business bank statements, and get an instant, AI-driven funding estimate. All credit types welcome.">
 <meta name="keywords" content="merchant cash advance, MCA, business funding, working capital, small business loan, business cash advance, fast business funding, revenue based financing">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://fundingexpress.com/">
+<link rel="canonical" href="https://expressfundingai.com/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="FundingExpress — Fast Merchant Cash Advance">
+<meta property="og:title" content="FundingExpressAi — Fast Merchant Cash Advance">
 <meta property="og:description" content="Apply in minutes. Upload your statements. Get an instant AI-driven funding estimate.">
-<meta property="og:url" content="https://fundingexpress.com/">
-<meta property="og:site_name" content="FundingExpress">
+<meta property="og:url" content="https://expressfundingai.com/">
+<meta property="og:site_name" content="FundingExpressAi">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,9 +25,9 @@
 {
   "@context": "https://schema.org",
   "@type": "FinancialService",
-  "name": "FundingExpress",
+  "name": "FundingExpressAi",
   "description": "Fast merchant cash advance and working capital for U.S. small businesses with an instant AI-driven funding estimate.",
-  "url": "https://fundingexpress.com/",
+  "url": "https://expressfundingai.com/",
   "areaServed": "US",
   "priceRange": "$$"
 }
@@ -670,7 +670,7 @@
         </span>
       </div>
       <div class="foot-contact">
-        <div class="fc"><b>Email</b><span>hello@fundingexpress.com</span></div>
+        <div class="fc"><b>Email</b><span><a href="mailto:support@expressfundingai.com" style="color:inherit;text-decoration:none;">support@expressfundingai.com</a></span></div>
         <div class="fc"><b>Response time</b><span>Same day, usually within hours</span></div>
       </div>
     </div>
@@ -900,14 +900,20 @@
 
   /* ---------- QR CODES ---------- */
   function buildQr(){
-    var base = (location.protocol === 'http:' || location.protocol === 'https:')
-      ? location.origin + location.pathname
-      : 'https://fundingexpress.com/';
+    var base;
+    if (location.protocol === 'http:' || location.protocol === 'https:'){
+      base = location.origin + '/';
+    } else {
+      base = 'https://expressfundingai.com/';
+    }
     var target = base + '#apply';
     var src = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=0&color=0B0F0D&data=' + encodeURIComponent(target);
     ['heroQr','ctaQr'].forEach(function(id){
       var el = document.getElementById(id);
-      if (el) el.src = src;
+      if (el){
+        el.src = src;
+        el.alt = 'Scan to apply on FundingExpressAi';
+      }
     });
   }
   buildQr();
