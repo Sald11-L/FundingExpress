@@ -82,24 +82,33 @@
   .brand .brand-name{font-size:1.45rem; font-weight:800; letter-spacing:-0.03em; color:var(--ink);}
   .brand .brand-name .ai{color:var(--green);}
   .brand .brand-tag{font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green-700);}
-  .nav-links{display:flex; align-items:center; gap:26px;}
-  .nav-links a:not(.nav-cta){font-size:0.92rem; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
-  .nav-links a:not(.nav-cta):hover{color:var(--green);}
+  .nav-links{display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end;}
+  .nav-links a.nav-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:10px 16px; border-radius:10px; border:1.5px solid var(--green);
+    background:var(--green-tint); color:var(--green-700);
+    font-size:0.88rem; font-weight:800; white-space:nowrap;
+    transition:background .15s, color .15s, transform .12s, box-shadow .15s;
+  }
+  .nav-links a.nav-btn:hover{background:var(--green); color:#fff; transform:translateY(-1px); box-shadow:0 4px 12px rgba(11,143,78,0.22);}
+  .nav-links a.nav-btn.active{background:var(--green); color:#fff;}
   @media (max-width:820px){
-    .nav-links{gap:12px;}
-    .nav-links a:not(.nav-cta){font-size:0.78rem;}
-    .nav .btn-primary{padding:10px 14px; font-size:0.85rem;}
+    .nav{flex-wrap:wrap; gap:12px; min-height:auto;}
+    .brand{flex:1 1 auto; min-width:0;}
+    .nav-links{width:100%; justify-content:stretch; gap:8px;}
+    .nav-links a.nav-btn{flex:1 1 calc(50% - 8px); font-size:0.78rem; padding:11px 10px; text-align:center;}
+    .nav-links .nav-cta{flex:1 1 100%;}
+    .nav .btn-primary{padding:12px 14px; font-size:0.9rem;}
     .brand .brand-mark{width:44px; height:44px; border-radius:11px;}
     .brand .brand-name{font-size:1.15rem;}
     .brand .brand-tag{font-size:0.68rem;}
   }
   @media (max-width:560px){
-    .nav-links a:not(.nav-cta){font-size:0.72rem;}
-    .nav-links{gap:8px;}
     .brand{gap:8px;}
     .brand .brand-mark{width:40px; height:40px;}
     .brand .brand-name{font-size:1.02rem;}
     .brand .brand-tag{font-size:0.62rem; letter-spacing:0.06em;}
+    .nav-links a.nav-btn{font-size:0.74rem; padding:10px 8px;}
   }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
@@ -418,8 +427,8 @@
       </span>
     </a>
     <nav class="nav-links">
-      <a href="states-and-industries.html">Where We Fund</a>
-      <a href="funded-testimonials.html">Funded Testimonials</a>
+      <a href="states-and-industries.html" class="nav-btn">Where We Fund</a>
+      <a href="funded-testimonials.html" class="nav-btn">Funded Testimonials</a>
       <a href="#" class="btn btn-primary nav-cta" data-apply>Apply now</a>
     </nav>
   </div>
