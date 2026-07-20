@@ -154,6 +154,11 @@
     background:var(--paper); border:1px solid var(--line); border-radius:20px;
     padding:26px; box-shadow:var(--shadow); position:relative;
   }
+  .hero-promise{
+    display:inline-block; margin-bottom:14px; padding:10px 14px; border-radius:10px;
+    background:var(--green-tint); border:1.5px solid var(--green-tint-2);
+    color:var(--green-700); font-weight:800; font-size:0.92rem; letter-spacing:-0.01em; line-height:1.35;
+  }
   .hero-card h3{font-size:1.05rem; font-weight:800; margin-bottom:4px;}
   .hero-card p.mini{font-size:0.85rem; color:var(--muted); margin-bottom:18px;}
   .est-preview{
@@ -367,6 +372,32 @@
   .secure-note{display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--green-700); background:var(--green-tint); padding:10px 13px; border-radius:10px; margin-top:16px;}
   .consent-note{font-size:0.76rem; color:var(--muted); line-height:1.55; margin-top:14px;}
   .consent-note a{color:var(--green-700); font-weight:700; text-decoration:underline;}
+  .disclose-box{
+    margin-top:16px; padding:14px 14px 12px; border:1.5px solid var(--line); border-radius:12px; background:#fff;
+  }
+  .disclose-row{display:flex; align-items:flex-start; gap:12px;}
+  .disclose-row input[type="checkbox"]{width:20px; height:20px; margin-top:2px; flex:none; accent-color:var(--green); cursor:pointer;}
+  .disclose-row label{font-size:0.88rem; font-weight:600; color:var(--ink-soft); line-height:1.45; cursor:pointer;}
+  .disclose-row label a{color:var(--green-700); font-weight:800; text-decoration:underline;}
+  .disclose-err{color:var(--danger); font-size:0.78rem; margin-top:8px; display:none;}
+  .disclose-err.show{display:block;}
+  .disclose-overlay{
+    position:fixed; inset:0; z-index:320; background:rgba(11,15,13,0.55); backdrop-filter:blur(3px);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .disclose-overlay.open{display:flex;}
+  .disclose-modal{
+    background:#fff; width:100%; max-width:560px; max-height:85vh; overflow:auto; border-radius:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.3); padding:24px 26px 20px;
+  }
+  .disclose-modal h3{font-size:1.2rem; font-weight:800; margin-bottom:10px;}
+  .disclose-modal h4{font-size:0.95rem; font-weight:800; margin:16px 0 6px;}
+  .disclose-modal p, .disclose-modal li{font-size:0.9rem; color:var(--ink-soft); line-height:1.55; margin-bottom:8px;}
+  .disclose-modal ol{margin:0 0 8px 18px;}
+  .disclose-modal .dm-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:18px; position:sticky; bottom:0; background:#fff; padding-top:10px;}
+  .submit-status{font-size:0.82rem; color:var(--muted); margin-top:10px; text-align:center;}
+  .submit-status.ok{color:var(--green-700); font-weight:700;}
+  .submit-status.err{color:var(--danger); font-weight:700;}
 
   .modal-foot{display:flex; align-items:center; justify-content:space-between; padding:18px 28px; border-top:1px solid var(--line); background:#fff; position:sticky; bottom:0;}
   .modal-foot .btn{border-radius:11px;}
@@ -452,6 +483,7 @@
       </div>
     </div>
     <div class="hero-card">
+      <div class="hero-promise">Remove broker. Deal with direct lender. No fees attached.</div>
       <h3>Your instant estimate</h3>
       <p class="mini">See what you may qualify for before you talk to anyone.</p>
       <div class="est-preview">
@@ -863,7 +895,14 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" stroke="#086138" stroke-width="2" stroke-linejoin="round"/></svg>
           Your files are handled securely and used only to verify your application.
         </div>
-        <p class="consent-note">By selecting &ldquo;Get my estimate,&rdquo; you agree to our <a href="privacy-terms.html" target="_blank" rel="noopener">Privacy Policy &amp; Terms of Service</a> and consent to be contacted by FundingExpress and its funding partners by phone, text message, and email regarding your inquiry &mdash; including via automated technology. Consent is not a condition of any purchase, and your estimate is educational only, not an offer or guarantee of funding.</p>
+        <div class="disclose-box">
+          <div class="disclose-row">
+            <input type="checkbox" id="statementConsent" name="statementConsent">
+            <label for="statementConsent">I have read and agree to the <a href="#" id="openDisclosure">Bank Statement Disclosure &amp; Consent</a>. I authorize FundingExpressAi to access and use my uploaded statements to process this application.</label>
+          </div>
+          <div class="disclose-err" id="discloseErr">Please check the box to agree to the Bank Statement Disclosure before continuing.</div>
+        </div>
+        <p class="consent-note">By selecting &ldquo;Get my estimate,&rdquo; you also agree to our <a href="privacy-terms.html" target="_blank" rel="noopener">Privacy Policy &amp; Terms of Service</a> and consent to be contacted by FundingExpressAi and its funding partners by phone, text message, and email regarding your inquiry &mdash; including via automated technology. Consent is not a condition of any purchase, and your estimate is educational only, not an offer or guarantee of funding.</p>
       </div>
 
       <!-- STEP 5: ANALYZING + RESULT -->
@@ -893,6 +932,31 @@
 </div>
 
 <canvas id="confettiCanvas" class="hidden" aria-hidden="true"></canvas>
+
+<div class="disclose-overlay" id="discloseOverlay" role="dialog" aria-modal="true" aria-labelledby="discloseTitle">
+  <div class="disclose-modal">
+    <h3 id="discloseTitle">Bank Statement Disclosure &amp; Consent</h3>
+    <p>By uploading your business bank statements to FundingExpressAi, you acknowledge and agree to the following:</p>
+    <h4>1. Purpose of Collection</h4>
+    <p>Your bank statements are collected solely to verify your business revenue, cash flow, and banking history for the purpose of generating a funding estimate and, if you proceed, evaluating your application with our funding partners and lenders.</p>
+    <h4>2. How Your Information Is Used</h4>
+    <p>Statements may be reviewed by FundingExpressAi and shared with third-party lenders, underwriters, or funding partners solely for purposes of assessing your eligibility for funding. Statements will not be used for any purpose unrelated to your application without your separate consent.</p>
+    <h4>3. Data Security</h4>
+    <p>Uploaded documents are transmitted and stored using industry-standard encryption and bank-level security controls. Access is limited to personnel and partners directly involved in underwriting your application.</p>
+    <h4>4. Accuracy</h4>
+    <p>You represent that the bank statements you upload are true, accurate, and unaltered copies of your actual business account records. Submitting falsified, altered, or misrepresented statements may result in denial of your application, rescission of any funding offer, and may constitute fraud under applicable law.</p>
+    <h4>5. No Guarantee of Approval</h4>
+    <p>Submission of bank statements does not guarantee approval, a specific funding amount, or specific terms. All funding estimates are educational and AI-generated; final offers are subject to lender review of your full application and supporting documents.</p>
+    <h4>6. Retention</h4>
+    <p>Bank statements will be retained only as long as necessary to process your application and comply with recordkeeping obligations, after which they will be securely deleted or archived per our data retention policy, as described in our Privacy Policy &amp; Terms of Service.</p>
+    <h4>7. Consent</h4>
+    <p>By checking the agreement box and selecting &ldquo;Get my estimate,&rdquo; you consent to FundingExpressAi and its funding partners collecting, storing, and using your bank statement data as described above and in our full <a href="privacy-terms.html" target="_blank" rel="noopener">Privacy Policy &amp; Terms of Service</a>.</p>
+    <div class="dm-actions">
+      <button type="button" class="btn btn-ghost" id="closeDisclosure">Close</button>
+      <button type="button" class="btn btn-primary" id="agreeDisclosure">I agree</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -975,8 +1039,12 @@
   backBtn.addEventListener('click', function(){ if (current > 1) showStep(current - 1); });
   nextBtn.addEventListener('click', function(){
     if (!validateStep(current)) return;
-    if (current === TOTAL_INPUT_STEPS){ showStep(5); runAnalysis(); }
-    else { showStep(current + 1); }
+    if (current === TOTAL_INPUT_STEPS){
+      showStep(5);
+      runAnalysis();
+    } else {
+      showStep(current + 1);
+    }
   });
 
   /* ---------- VALIDATION ---------- */
@@ -993,7 +1061,11 @@
       var filled = revInputs.every(function(i){ return i.value !== '' && Number(i.value) >= 0; });
       revErr.classList.toggle('show', !filled);
       revInputs.forEach(function(i){ i.classList.toggle('err', i.value === ''); });
-      return filled;
+      var consent = document.getElementById('statementConsent');
+      var discloseErr = document.getElementById('discloseErr');
+      var agreed = consent && consent.checked;
+      if (discloseErr) discloseErr.classList.toggle('show', !agreed);
+      return filled && agreed;
     }
     stepEl.querySelectorAll('[data-req]').forEach(function(input){
       var val = input.value.trim();
@@ -1007,6 +1079,27 @@
   document.querySelectorAll('[data-req]').forEach(function(input){
     input.addEventListener('input', function(){ if (input.classList.contains('err')) markErr(input, false); });
   });
+  var statementConsent = document.getElementById('statementConsent');
+  if (statementConsent){
+    statementConsent.addEventListener('change', function(){
+      if (this.checked) document.getElementById('discloseErr').classList.remove('show');
+    });
+  }
+
+  /* ---------- DISCLOSURE MODAL ---------- */
+  var discloseOverlay = document.getElementById('discloseOverlay');
+  document.getElementById('openDisclosure').addEventListener('click', function(e){
+    e.preventDefault();
+    discloseOverlay.classList.add('open');
+  });
+  function closeDisclosure(){ discloseOverlay.classList.remove('open'); }
+  document.getElementById('closeDisclosure').addEventListener('click', closeDisclosure);
+  document.getElementById('agreeDisclosure').addEventListener('click', function(){
+    statementConsent.checked = true;
+    document.getElementById('discloseErr').classList.remove('show');
+    closeDisclosure();
+  });
+  discloseOverlay.addEventListener('click', function(e){ if (e.target === discloseOverlay) closeDisclosure(); });
 
   /* ---------- YES/NO SEGMENTS ---------- */
   var state = { hasDebt:'no', takesCards:'no', ownsHome:'no', creditEnhance:'no' };
@@ -1102,6 +1195,84 @@
     });
   }
 
+  /* ---------- EMAIL APPLICATION TO PROSPECT ---------- */
+  function val(id){
+    var el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  }
+  function collectApplication(estSummary){
+    var revs = revInputs.map(function(i){ return Number(i.value) || 0; });
+    var avg = revs.length ? (revs.reduce(function(a,b){ return a+b; }, 0) / revs.length) : 0;
+    var lenders = [];
+    lenderRows.querySelectorAll('.lender-row').forEach(function(row){
+      var name = (row.querySelector('.l-name') || {}).value || '';
+      var amt = (row.querySelector('.l-amt') || {}).value || '';
+      if (String(name).trim() || String(amt).trim()){
+        lenders.push({ name: String(name).trim(), balance: String(amt).trim() });
+      }
+    });
+    var monthLabels = [];
+    document.querySelectorAll('#revGrid .rev-cell label').forEach(function(l){ monthLabels.push(l.textContent); });
+    var revenueByMonth = {};
+    monthLabels.forEach(function(label, i){ revenueByMonth[label] = revs[i] || 0; });
+
+    return {
+      submittedAt: new Date().toISOString(),
+      product: selectedProduct,
+      business: {
+        legalName: val('bizName'),
+        dba: val('dbaName'),
+        state: val('entityState'),
+        address: val('bizAddress'),
+        email: val('bizEmail'),
+        phone: val('bizPhone'),
+        ein: val('ein'),
+        startDate: val('startDate')
+      },
+      debts: {
+        hasExisting: state.hasDebt,
+        lenders: lenders,
+        takesCards: state.takesCards,
+        ownsHome: state.ownsHome,
+        creditEnhance: state.creditEnhance
+      },
+      owner: {
+        name: val('ownerName'),
+        title: val('ownerTitle'),
+        ownership: val('ownership'),
+        dob: val('ownerDob'),
+        homeAddress: val('homeAddress'),
+        ssnLast4: val('ssn4'),
+        credit: val('creditBand'),
+        phone: val('ownerPhone'),
+        secondOwner: val('secondOwner')
+      },
+      revenue: {
+        months: revenueByMonth,
+        average: Math.round(avg),
+        statementFiles: files.map(function(f){ return f.name + ' (' + fmtSize(f.size) + ')'; }),
+        statementConsent: !!(document.getElementById('statementConsent') && document.getElementById('statementConsent').checked)
+      },
+      estimate: estSummary || null
+    };
+  }
+  function sendApplicationEmail(estSummary){
+    var payload = collectApplication(estSummary);
+    return fetch('submit-application.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      return res.json().then(function(data){
+        return { ok: res.ok && data && data.ok, data: data };
+      }).catch(function(){
+        return { ok: false, data: null };
+      });
+    }).catch(function(){
+      return { ok: false, data: null };
+    });
+  }
+
   /* ---------- AI ANALYSIS + RESULT ---------- */
   function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
 
@@ -1178,11 +1349,31 @@
       '</div>' +
       (adjusted ? '<p class="result-fine">Your estimated ceiling reflects your existing advance balance(s). Paying down or consolidating current positions could increase what you qualify for.</p>' : '') +
       '<div style="margin-top:8px;"><button class="btn btn-primary btn-lg" id="finishBtn">Submit application &rarr;</button></div>' +
+      '<p class="submit-status" id="submitStatus">Sending your application to our team&hellip;</p>' +
       '<p class="result-fine">This is an educational, AI-generated estimate &mdash; not an offer or a guarantee of approval, amount, or terms. Final offers depend on full lender review. Checking does not affect your credit score.</p>';
 
     document.getElementById('analyzing').classList.add('hidden');
     wrap.classList.remove('hidden');
     fireConfetti();
+
+    var estSummary = {
+      tier: est.tier,
+      low: est.low,
+      high: est.high,
+      averageRevenue: Math.round(avg),
+      display: est.tier === 'below' ? 'Custom review' : (fmt(est.low) + ' - ' + fmt(est.high) + (est.plus ? '+' : ''))
+    };
+    sendApplicationEmail(estSummary).then(function(result){
+      var status = document.getElementById('submitStatus');
+      if (!status) return;
+      if (result.ok){
+        status.className = 'submit-status ok';
+        status.textContent = 'Application received — sent to prospect@expressfundingai.com';
+      } else {
+        status.className = 'submit-status err';
+        status.textContent = 'Application saved on screen. If email delivery failed, please email support@expressfundingai.com.';
+      }
+    });
 
     document.getElementById('finishBtn').addEventListener('click', function(){
       this.textContent = 'Congrats \u2713 You will be contacted shortly';
