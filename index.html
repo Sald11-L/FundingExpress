@@ -989,6 +989,7 @@
   var modal = document.getElementById('modal');
   var TOTAL_INPUT_STEPS = 4;
   var selectedProduct = 'Merchant Cash Advance';
+  var applicationCompleted = false;
 
   function openModal(product){
     if (product) selectedProduct = product;
@@ -998,6 +999,12 @@
   function closeModal(){
     modal.classList.remove('open');
     document.body.style.overflow = '';
+    if (applicationCompleted){
+      if (location.hash === '#apply'){
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      location.reload();
+    }
   }
   document.querySelectorAll('[data-apply]').forEach(function(el){
     el.addEventListener('click', function(e){ e.preventDefault(); openModal(el.getAttribute('data-product')); });
@@ -1352,7 +1359,6 @@
       '</div>' +
       (adjusted ? '<p class="result-fine">Your estimated ceiling reflects your existing advance balance(s). Paying down or consolidating current positions could increase what you qualify for.</p>' : '') +
       '<div style="margin-top:8px;"><button class="btn btn-primary btn-lg" id="finishBtn">Submit application &rarr;</button></div>' +
-      '<p class="submit-status" id="submitStatus">Sending your application to our team&hellip;</p>' +
       '<p class="result-fine">This is an educational, AI-generated estimate &mdash; not an offer or a guarantee of approval, amount, or terms. Final offers depend on full lender review. Checking does not affect your credit score.</p>';
 
     document.getElementById('analyzing').classList.add('hidden');
@@ -1366,19 +1372,12 @@
       averageRevenue: Math.round(avg),
       display: est.tier === 'below' ? 'Custom review' : (fmt(est.low) + ' - ' + fmt(est.high) + (est.plus ? '+' : ''))
     };
-    sendApplicationEmail(estSummary).then(function(result){
-      var status = document.getElementById('submitStatus');
-      if (!status) return;
-      if (result.ok){
-        status.className = 'submit-status ok';
-        status.textContent = 'Application received — sent to prospect@expressfundingai.com';
-      } else {
-        status.className = 'submit-status err';
-        status.textContent = 'Application saved on screen. If email delivery failed, please email support@expressfundingai.com.';
-      }
+    sendApplicationEmail(estSummary).then(function(){
+      applicationCompleted = true;
     });
 
     document.getElementById('finishBtn').addEventListener('click', function(){
+      applicationCompleted = true;
       this.textContent = 'Congrats \u2713 You will be contacted shortly';
       this.disabled = true;
       this.style.opacity = '0.85';
