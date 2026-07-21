@@ -49,21 +49,25 @@
   }
   .nav-links a.nav-btn:hover{background:var(--green); color:#fff; transform:translateY(-1px); box-shadow:0 4px 12px rgba(11,143,78,0.22);}
   @media (max-width:820px){
-    .nav{flex-wrap:wrap; gap:12px; min-height:auto;}
-    .brand{flex:1 1 auto; min-width:0;}
-    .nav-links{width:100%; justify-content:stretch; gap:8px;}
-    .nav-links a.nav-btn{flex:1 1 calc(50% - 8px); font-size:0.78rem; padding:11px 10px; text-align:center;}
-    .nav-links .btn-primary{flex:1 1 100%; padding:12px 14px; font-size:0.9rem;}
-    .brand .brand-mark{width:44px; height:44px;}
-    .brand .brand-name{font-size:1.15rem;}
-    .brand .brand-tag{font-size:0.68rem;}
+    .nav{flex-wrap:wrap; gap:8px; min-height:auto; align-items:center;}
+    .brand{flex:1 1 auto; min-width:0; order:1;}
+    .nav-links{display:contents;}
+    .nav-links .btn-primary{order:2; flex:0 0 auto; padding:8px 12px; font-size:0.8rem;}
+    .nav-links a.nav-btn{
+      order:3; flex:0 1 auto; width:auto;
+      font-size:0.68rem; font-weight:700; padding:5px 10px; border-radius:999px; border-width:1px;
+    }
+    .brand .brand-mark{width:40px; height:40px;}
+    .brand .brand-name{font-size:1.05rem;}
+    .brand .brand-tag{font-size:0.62rem;}
   }
   @media (max-width:560px){
-    .brand{gap:8px;}
-    .brand .brand-mark{width:40px; height:40px;}
-    .brand .brand-name{font-size:1.02rem;}
-    .brand .brand-tag{font-size:0.62rem; letter-spacing:0.06em;}
-    .nav-links a.nav-btn{font-size:0.74rem; padding:10px 8px;}
+    .brand{gap:7px;}
+    .brand .brand-mark{width:34px; height:34px;}
+    .brand .brand-name{font-size:0.95rem;}
+    .brand .brand-tag{font-size:0.56rem; letter-spacing:0.05em;}
+    .nav-links a.nav-btn{font-size:0.62rem; padding:4px 8px;}
+    .nav-links .btn-primary{padding:7px 10px; font-size:0.75rem;}
   }
   .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; font-weight:700; cursor:pointer; border:none; border-radius:10px; padding:12px 22px; font-size:0.95rem; text-decoration:none;}
   .btn-primary{background:var(--green); color:#fff; box-shadow:0 6px 18px rgba(11,143,78,0.28);}
