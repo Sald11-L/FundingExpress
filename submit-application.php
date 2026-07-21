@@ -1,7 +1,7 @@
 <?php
 /**
  * FundingExpressAi — application intake
- * Saves lead + statement files, emails sales@expressfundingai.com
+ * Saves lead + statement files, emails sales@expressfundingai.com with attachments
  */
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -20,13 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $to = 'sales@expressfundingai.com';
 $from = 'sales@expressfundingai.com';
 
-// Support JSON or multipart (with files)
 $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
 $data = null;
+$uploadDebug = [];
 
-if (stripos($contentType, 'multipart/form-data') !== false) {
+if (stripos($contentType, 'multipart/form-data') !== false || !empty($_POST)) {
   $payload = isset($_POST['payload']) ? $_POST['payload'] : '';
   $data = json_decode($payload, true);
+  if (!is_array($data)) {
+    // Rare: some hosts leave payload only in raw body
+    $raw = file_get_contents('php://input');
+    $data = json_decode($raw, true);
+  }
 } else {
   $raw = file_get_contents('php://input');
   $data = json_decode($raw, true);
@@ -47,8 +52,8 @@ $estimate = isset($data['estimate']) && is_array($data['estimate']) ? $data['est
 $bizName = !empty($biz['legalName']) ? $biz['legalName'] : 'New lead';
 $leadId = date('Ymd-His') . '-' . substr(bin2hex(random_bytes(4)), 0, 8);
 
-$baseDir = __DIR__ . '/uploads';
-$leadDir = $baseDir . '/' . $leadId;
+$baseDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads';
+$leadDir = $baseDir . DIRECTORY_SEPARATOR . $leadId;
 if (!is_dir($baseDir)) {
   @mkdir($baseDir, 0755, true);
 }
@@ -56,33 +61,129 @@ if (!is_dir($leadDir)) {
   @mkdir($leadDir, 0755, true);
 }
 
-// Save uploaded statement files
+/**
+ * Normalize $_FILES entry into a list of single-file arrays.
+ */
+function fe_normalize_files($fileInfo) {
+  $out = [];
+  if (!is_array($fileInfo) || !isset($fileInfo['name'])) return $out;
+  if (is_array($fileInfo['name'])) {
+    foreach ($fileInfo['name'] as $i => $name) {
+      $out[] = [
+        'name' => $name,
+        'type' => $fileInfo['type'][$i] ?? 'application/octet-stream',
+        'tmp_name' => $fileInfo['tmp_name'][$i] ?? '',
+        'error' => $fileInfo['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+        'size' => $fileInfo['size'][$i] ?? 0,
+      ];
+    }
+  } else {
+    $out[] = $fileInfo;
+  }
+  return $out;
+}
+
+function fe_safe_filename($name, $fallback) {
+  $orig = basename((string)$name);
+  $orig = preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
+  if ($orig === '' || $orig === '.' || $orig === '..') return $fallback;
+  return $orig;
+}
+
+function fe_mime_for($name, $fallback = 'application/octet-stream') {
+  $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+  $map = [
+    'pdf' => 'application/pdf',
+    'png' => 'image/png',
+    'jpg' => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'gif' => 'image/gif',
+    'webp' => 'image/webp',
+  ];
+  return $map[$ext] ?? $fallback;
+}
+
 $savedFiles = [];
-if (!empty($_FILES['statements']) && is_array($_FILES['statements']['name'])) {
-  $count = count($_FILES['statements']['name']);
-  for ($i = 0; $i < $count; $i++) {
-    if ($_FILES['statements']['error'][$i] !== UPLOAD_ERR_OK) continue;
-    $orig = basename((string)$_FILES['statements']['name'][$i]);
-    $orig = preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
-    if ($orig === '' || $orig === '.' || $orig === '..') $orig = 'statement_' . ($i + 1) . '.bin';
-    $dest = $leadDir . '/' . $orig;
-    if (@move_uploaded_file($_FILES['statements']['tmp_name'][$i], $dest)) {
+$seenNames = [];
+
+// Path A: multipart binary uploads
+$uploadDebug['files_keys'] = array_keys($_FILES);
+foreach ($_FILES as $key => $info) {
+  if (stripos($key, 'statement') === false) continue;
+  foreach (fe_normalize_files($info) as $file) {
+    $err = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($err !== UPLOAD_ERR_OK) {
+      $uploadDebug['multipart_errors'][] = ($file['name'] ?? '?') . ' err=' . $err;
+      continue;
+    }
+    $orig = fe_safe_filename($file['name'] ?? '', 'statement_' . (count($savedFiles) + 1) . '.bin');
+    // Avoid overwrite
+    if (isset($seenNames[$orig])) {
+      $orig = (count($savedFiles) + 1) . '_' . $orig;
+    }
+    $dest = $leadDir . DIRECTORY_SEPARATOR . $orig;
+    if (@move_uploaded_file($file['tmp_name'], $dest)) {
+      $seenNames[$orig] = true;
       $savedFiles[] = [
         'name' => $orig,
         'path' => $dest,
-        'size' => (int)$_FILES['statements']['size'][$i],
+        'size' => (int)($file['size'] ?? filesize($dest)),
+        'mime' => fe_mime_for($orig, $file['type'] ?? 'application/octet-stream'),
+        'source' => 'multipart',
       ];
+    } else {
+      $uploadDebug['multipart_errors'][] = $orig . ' move_failed';
     }
   }
 }
 
+// Path B: base64 embedded in JSON (survives hosts that strip multipart files)
+if (!empty($data['statementUploads']) && is_array($data['statementUploads'])) {
+  foreach ($data['statementUploads'] as $idx => $up) {
+    if (!is_array($up) || empty($up['data'])) continue;
+    $orig = fe_safe_filename($up['name'] ?? '', 'statement_' . ($idx + 1) . '.bin');
+    if (isset($seenNames[$orig])) {
+      // Already saved via multipart — skip duplicate
+      continue;
+    }
+    $raw = base64_decode((string)$up['data'], true);
+    if ($raw === false || $raw === '') {
+      $uploadDebug['base64_errors'][] = $orig . ' decode_failed';
+      continue;
+    }
+    // Cap each file at 8MB
+    if (strlen($raw) > 8 * 1024 * 1024) {
+      $uploadDebug['base64_errors'][] = $orig . ' too_large';
+      continue;
+    }
+    $dest = $leadDir . DIRECTORY_SEPARATOR . $orig;
+    if (@file_put_contents($dest, $raw) !== false) {
+      $seenNames[$orig] = true;
+      $savedFiles[] = [
+        'name' => $orig,
+        'path' => $dest,
+        'size' => strlen($raw),
+        'mime' => fe_mime_for($orig, $up['type'] ?? 'application/octet-stream'),
+        'source' => 'base64',
+      ];
+    } else {
+      $uploadDebug['base64_errors'][] = $orig . ' write_failed';
+    }
+  }
+}
+
+// Strip bulky base64 from backup JSON (keep names only)
+unset($data['statementUploads']);
 $data['leadId'] = $leadId;
 $data['savedFiles'] = array_map(function ($f) {
-  return $f['name'] . ' (' . $f['size'] . ' bytes)';
+  return $f['name'] . ' (' . $f['size'] . ' bytes, ' . $f['source'] . ')';
 }, $savedFiles);
+$data['uploadDebug'] = $uploadDebug;
 
-// Backup JSON on server (File Manager > uploads/{leadId}/application.json)
-@file_put_contents($leadDir . '/application.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+@file_put_contents(
+  $leadDir . DIRECTORY_SEPARATOR . 'application.json',
+  json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+);
 
 $subject = 'New FundingExpressAi application — ' . $bizName;
 
@@ -138,16 +239,19 @@ $lines[] = '';
 $lines[] = '=== BANK STATEMENTS ===';
 if (count($savedFiles)) {
   foreach ($savedFiles as $f) {
-    $lines[] = ' - ' . $f['name'] . ' (' . number_format($f['size'] / 1024, 1) . ' KB) [attached + saved on server]';
+    $lines[] = ' - ' . $f['name'] . ' (' . number_format($f['size'] / 1024, 1) . ' KB) via ' . $f['source'] . ' — ATTACHED';
   }
-  $lines[] = 'Server folder: uploads/' . $leadId . '/';
+  $lines[] = 'Also saved on server: uploads/' . $leadId . '/';
 } else {
-  $lines[] = 'No statement files uploaded with this application.';
+  $lines[] = 'No statement files could be saved.';
   if (!empty($revenue['statementFiles']) && is_array($revenue['statementFiles'])) {
-    $lines[] = 'Client listed:';
+    $lines[] = 'Client selected in browser:';
     foreach ($revenue['statementFiles'] as $f) {
       $lines[] = ' - ' . $f;
     }
+  }
+  if (!empty($uploadDebug)) {
+    $lines[] = 'Upload debug: ' . json_encode($uploadDebug);
   }
 }
 $lines[] = '';
@@ -161,41 +265,49 @@ $lines[] = 'Reply to the applicant business email to continue this lead.';
 $bodyText = implode("\r\n", $lines);
 $replyTo = !empty($biz['email']) ? $biz['email'] : $from;
 
-// Build multipart email with attachments
-$boundary = 'bnd_' . md5(uniqid((string)mt_rand(), true));
-$headers = [];
-$headers[] = 'From: FundingExpressAi <' . $from . '>';
-$headers[] = 'Reply-To: ' . $replyTo;
-$headers[] = 'MIME-Version: 1.0';
-$headers[] = 'Content-Type: multipart/mixed; boundary="' . $boundary . '"';
-$headers[] = 'X-Mailer: FundingExpressAi';
+// Build multipart/mixed email — body as its own part, then each file
+$boundary = '=_FE_' . md5(uniqid((string)mt_rand(), true));
 
-$message = '';
-$message .= '--' . $boundary . "\r\n";
-$message .= "Content-Type: text/plain; charset=UTF-8\r\n";
-$message .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-$message .= $bodyText . "\r\n";
+$headers = 'From: FundingExpressAi <' . $from . '>' . "\r\n"
+  . 'Reply-To: ' . $replyTo . "\r\n"
+  . 'MIME-Version: 1.0' . "\r\n"
+  . 'Content-Type: multipart/mixed; boundary="' . $boundary . '"' . "\r\n"
+  . 'X-Mailer: FundingExpressAi';
 
+$message = '--' . $boundary . "\r\n"
+  . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
+  . 'Content-Transfer-Encoding: 8bit' . "\r\n\r\n"
+  . $bodyText . "\r\n";
+
+$attachedCount = 0;
 foreach ($savedFiles as $f) {
   if (!is_file($f['path'])) continue;
-  $content = file_get_contents($f['path']);
+  $content = @file_get_contents($f['path']);
   if ($content === false) continue;
-  // Skip very large attachments in email (>8MB) — still saved on server
+  // Skip huge attachments in email (still on disk)
   if (strlen($content) > 8 * 1024 * 1024) continue;
-  $message .= '--' . $boundary . "\r\n";
-  $message .= 'Content-Type: application/octet-stream; name="' . $f['name'] . "\"\r\n";
-  $message .= "Content-Transfer-Encoding: base64\r\n";
-  $message .= 'Content-Disposition: attachment; filename="' . $f['name'] . "\"\r\n\r\n";
-  $message .= chunk_split(base64_encode($content)) . "\r\n";
+
+  $safeName = str_replace(['"', "\r", "\n"], '', $f['name']);
+  $mime = $f['mime'] ?: 'application/octet-stream';
+  $message .= '--' . $boundary . "\r\n"
+    . 'Content-Type: ' . $mime . '; name="' . $safeName . '"' . "\r\n"
+    . 'Content-Transfer-Encoding: base64' . "\r\n"
+    . 'Content-Disposition: attachment; filename="' . $safeName . '"' . "\r\n\r\n"
+    . chunk_split(base64_encode($content)) . "\r\n";
+  $attachedCount++;
 }
 
-$message .= '--' . $boundary . "--\r\n";
+$message .= '--' . $boundary . '--';
 
 $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-$mailOk = @mail($to, $encodedSubject, $message, implode("\r\n", $headers));
+$envelope = '-f' . $from;
+$mailOk = @mail($to, $encodedSubject, $message, $headers, $envelope);
+if (!$mailOk) {
+  // Retry without envelope flag (some hosts reject -f)
+  $mailOk = @mail($to, $encodedSubject, $message, $headers);
+}
 
-// Always treat as success if lead was saved on disk (email may still arrive later / land in spam)
-$savedOk = is_file($leadDir . '/application.json');
+$savedOk = is_file($leadDir . DIRECTORY_SEPARATOR . 'application.json');
 
 if ($mailOk || $savedOk) {
   echo json_encode([
@@ -204,6 +316,7 @@ if ($mailOk || $savedOk) {
     'mailOk' => (bool)$mailOk,
     'leadId' => $leadId,
     'filesSaved' => count($savedFiles),
+    'filesAttached' => $attachedCount,
   ]);
 } else {
   http_response_code(500);

@@ -5,3 +5,5 @@ Source/
 *.pdf
 .DS_Store
 Thumbs.db
+uploads/*/
+!uploads/.htaccess

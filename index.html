@@ -1266,16 +1266,49 @@
       estimate: estSummary || null
     };
   }
+  function readFileAsBase64(file){
+    return new Promise(function(resolve){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var result = String(reader.result || '');
+        var comma = result.indexOf(',');
+        resolve({
+          name: file.name,
+          type: file.type || 'application/octet-stream',
+          size: file.size,
+          data: comma >= 0 ? result.slice(comma + 1) : result
+        });
+      };
+      reader.onerror = function(){ resolve(null); };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function sendApplicationEmail(estSummary){
     var payload = collectApplication(estSummary);
-    var fd = new FormData();
-    fd.append('payload', JSON.stringify(payload));
+    // Cap total encoded size so shared hosts accept the POST (~3.5MB raw ≈ safe)
+    var maxTotal = 3.5 * 1024 * 1024;
+    var running = 0;
+    var toEncode = [];
     files.forEach(function(f){
-      fd.append('statements[]', f, f.name);
+      if (running + f.size > maxTotal) return;
+      running += f.size;
+      toEncode.push(f);
     });
-    return fetch('submit-application.php', {
-      method: 'POST',
-      body: fd
+
+    return Promise.all(toEncode.map(readFileAsBase64)).then(function(encoded){
+      payload.statementUploads = encoded.filter(Boolean);
+      var fd = new FormData();
+      fd.append('payload', JSON.stringify(payload));
+      // Also send binary multipart (some hosts accept this; base64 is the reliable fallback)
+      files.forEach(function(f, i){
+        fd.append('statements[' + i + ']', f, f.name);
+      });
+      return fetch('submit-application.php', {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin'
+      });
     }).then(function(res){
       return res.json().then(function(data){
         return { ok: res.ok && data && data.ok, data: data };
