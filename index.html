@@ -1268,10 +1268,14 @@
   }
   function sendApplicationEmail(estSummary){
     var payload = collectApplication(estSummary);
+    var fd = new FormData();
+    fd.append('payload', JSON.stringify(payload));
+    files.forEach(function(f){
+      fd.append('statements[]', f, f.name);
+    });
     return fetch('submit-application.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: fd
     }).then(function(res){
       return res.json().then(function(data){
         return { ok: res.ok && data && data.ok, data: data };
