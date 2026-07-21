@@ -990,21 +990,21 @@
   var TOTAL_INPUT_STEPS = 4;
   var selectedProduct = 'Merchant Cash Advance';
   var applicationCompleted = false;
+  var resetApplicationForm = null;
 
   function openModal(product){
-    if (product) selectedProduct = product;
+    if (typeof resetApplicationForm === 'function') resetApplicationForm();
+    selectedProduct = product || 'Merchant Cash Advance';
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
   function closeModal(){
     modal.classList.remove('open');
     document.body.style.overflow = '';
-    if (applicationCompleted){
-      if (location.hash === '#apply'){
-        history.replaceState(null, '', location.pathname + location.search);
-      }
-      location.reload();
+    if (location.hash === '#apply'){
+      history.replaceState(null, '', location.pathname + location.search);
     }
+    if (typeof resetApplicationForm === 'function') resetApplicationForm();
   }
   document.querySelectorAll('[data-apply]').forEach(function(el){
     el.addEventListener('click', function(e){ e.preventDefault(); openModal(el.getAttribute('data-product')); });
@@ -1204,6 +1204,51 @@
       fileList.appendChild(item);
     });
   }
+
+  resetApplicationForm = function(){
+    applicationCompleted = false;
+
+    modal.querySelectorAll('input, select, textarea').forEach(function(el){
+      if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+      else if (el.type === 'file') el.value = '';
+      else el.value = '';
+      el.classList.remove('err');
+    });
+    modal.querySelectorAll('.field-err, .disclose-err').forEach(function(el){
+      el.classList.remove('show');
+    });
+
+    state.hasDebt = 'no';
+    state.takesCards = 'no';
+    state.ownsHome = 'no';
+    state.creditEnhance = 'no';
+    document.querySelectorAll('.seg[data-yesno] button, #hasDebtSeg button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.val === 'no');
+    });
+    lenderBlock.classList.add('hidden');
+    lenderRows.innerHTML = '';
+
+    files = [];
+    renderFiles();
+    if (fileInput) fileInput.value = '';
+
+    revInputs.forEach(function(i){
+      i.value = '';
+      i.classList.remove('err');
+    });
+    var revErr = document.getElementById('revErr');
+    if (revErr) revErr.classList.remove('show');
+
+    var analyzing = document.getElementById('analyzing');
+    var result = document.getElementById('result');
+    if (analyzing) analyzing.classList.add('hidden');
+    if (result){
+      result.classList.add('hidden');
+      result.innerHTML = '';
+    }
+
+    showStep(1);
+  };
 
   /* ---------- EMAIL APPLICATION TO PROSPECT ---------- */
   function val(id){
