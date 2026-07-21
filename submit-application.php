@@ -1,7 +1,7 @@
 <?php
 /**
  * FundingExpressAi — application intake
- * Emails completed applications to prospect@expressfundingai.com
+ * Emails completed applications to sales@expressfundingai.com
  */
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
