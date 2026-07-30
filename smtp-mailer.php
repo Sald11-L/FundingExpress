@@ -1,8 +1,9 @@
 <?php
 /**
  * Lightweight SMTP client for Hostinger (no Composer).
- * Supports SSL (465) and STARTTLS (587).
+ * Supports SSL (465) and STARTTLS (587), with auto host/port retry.
  */
+
 function fe_smtp_send(array $cfg, array $mail) {
   $host = $cfg['smtp_host'] ?? 'smtp.hostinger.com';
   $port = (int)($cfg['smtp_port'] ?? 465);
@@ -28,13 +29,7 @@ function fe_smtp_send(array $cfg, array $mail) {
   $errstr = '';
   $fp = @stream_socket_client($remote . ':' . $port, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
   if (!$fp) {
-    $altHost = (stripos($host, 'titan') !== false) ? 'smtp.hostinger.com' : 'smtp.titan.email';
-    $remoteAlt = ($secure === 'ssl' ? 'ssl://' : '') . $altHost;
-    $fp = @stream_socket_client($remoteAlt . ':' . $port, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
-    if (!$fp) {
-      return ['ok' => false, 'error' => "SMTP connect failed: $errstr ($errno)"];
-    }
-    $host = $altHost;
+    return ['ok' => false, 'error' => "SMTP connect failed ($host:$port): $errstr ($errno)"];
   }
   stream_set_timeout($fp, $timeout);
 
@@ -93,7 +88,7 @@ function fe_smtp_send(array $cfg, array $mail) {
   if (!$ok) { fclose($fp); return ['ok' => false, 'error' => "SMTP username rejected: $resp"]; }
   $write(base64_encode($pass));
   list($ok, $code, $resp) = $expect(235);
-  if (!$ok) { fclose($fp); return ['ok' => false, 'error' => "SMTP password rejected: $resp"]; }
+  if (!$ok) { fclose($fp); return ['ok' => false, 'error' => "SMTP password rejected on $host:$port — use the sales@ mailbox password"]; }
 
   $write('MAIL FROM:<' . $from . '>');
   list($ok, $code, $resp) = $expect(250);
@@ -140,8 +135,6 @@ function fe_smtp_send(array $cfg, array $mail) {
     $data .= chunk_split(base64_encode($content)) . "\r\n";
   }
   $data .= '--' . $boundary . "--\r\n";
-
-  // Dot-stuffing
   $data = preg_replace('/^\./m', '..', $data);
   fwrite($fp, $data . "\r\n.\r\n");
   list($ok, $code, $resp) = $expect(250);
@@ -150,4 +143,102 @@ function fe_smtp_send(array $cfg, array $mail) {
   $write('QUIT');
   fclose($fp);
   return ['ok' => true, 'error' => '', 'host' => $host, 'port' => $port];
+}
+
+/** Try common Hostinger / Titan SMTP combos until one works. */
+function fe_smtp_send_auto(array $cfg, array $mail) {
+  $attempts = [
+    ['smtp_host' => 'smtp.hostinger.com', 'smtp_port' => 465, 'smtp_secure' => 'ssl'],
+    ['smtp_host' => 'smtp.hostinger.com', 'smtp_port' => 587, 'smtp_secure' => 'tls'],
+    ['smtp_host' => 'smtp.titan.email', 'smtp_port' => 465, 'smtp_secure' => 'ssl'],
+    ['smtp_host' => 'smtp.titan.email', 'smtp_port' => 587, 'smtp_secure' => 'tls'],
+  ];
+  // Prefer configured host first
+  if (!empty($cfg['smtp_host'])) {
+    array_unshift($attempts, [
+      'smtp_host' => $cfg['smtp_host'],
+      'smtp_port' => (int)($cfg['smtp_port'] ?? 465),
+      'smtp_secure' => $cfg['smtp_secure'] ?? 'ssl',
+    ]);
+  }
+
+  $errors = [];
+  $seen = [];
+  foreach ($attempts as $attempt) {
+    $key = $attempt['smtp_host'] . ':' . $attempt['smtp_port'] . ':' . $attempt['smtp_secure'];
+    if (isset($seen[$key])) continue;
+    $seen[$key] = true;
+    $tryCfg = array_merge($cfg, $attempt);
+    $result = fe_smtp_send($tryCfg, $mail);
+    if (!empty($result['ok'])) {
+      return $result;
+    }
+    $errors[] = $key . ' => ' . ($result['error'] ?? 'fail');
+  }
+  return ['ok' => false, 'error' => implode(' | ', $errors)];
+}
+
+/** Backup relay — no Hostinger SMTP password needed. First use may require clicking a confirm link in sales@. */
+function fe_formsubmit_send($to, $subject, $body, $replyEmail) {
+  $url = 'https://formsubmit.co/ajax/' . rawurlencode($to);
+  $payload = json_encode([
+    'name' => 'FundingExpressAi Application',
+    'email' => $replyEmail ?: $to,
+    '_subject' => $subject,
+    'message' => $body,
+    '_template' => 'box',
+    '_captcha' => 'false',
+    '_honey' => '',
+  ]);
+
+  if (function_exists('curl_init')) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+      CURLOPT_POST => true,
+      CURLOPT_POSTFIELDS => $payload,
+      CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT => 45,
+      CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+    $resp = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $cerr = curl_error($ch);
+    curl_close($ch);
+    if ($resp === false) {
+      return ['ok' => false, 'error' => 'FormSubmit curl error: ' . $cerr];
+    }
+    $data = json_decode($resp, true);
+    $success = is_array($data) && (
+      (isset($data['success']) && ($data['success'] === true || $data['success'] === 'true'))
+      || (isset($data['message']) && stripos((string)$data['message'], 'activat') !== false)
+    );
+    if ($code >= 200 && $code < 300 && ($success || $code === 200)) {
+      $needsActivate = is_array($data) && isset($data['message']) && stripos((string)$data['message'], 'activat') !== false;
+      return [
+        'ok' => true,
+        'error' => '',
+        'needsActivation' => $needsActivate,
+        'response' => $resp,
+      ];
+    }
+    return ['ok' => false, 'error' => 'FormSubmit HTTP ' . $code . ': ' . substr((string)$resp, 0, 300)];
+  }
+
+  $ctx = stream_context_create([
+    'http' => [
+      'method' => 'POST',
+      'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+      'content' => $payload,
+      'timeout' => 45,
+      'ignore_errors' => true,
+    ],
+  ]);
+  $resp = @file_get_contents($url, false, $ctx);
+  if ($resp === false) {
+    return ['ok' => false, 'error' => 'FormSubmit request failed'];
+  }
+  $data = json_decode($resp, true);
+  $ok = is_array($data) && isset($data['success']) && ($data['success'] === true || $data['success'] === 'true');
+  return ['ok' => $ok, 'error' => $ok ? '' : substr($resp, 0, 300), 'response' => $resp];
 }

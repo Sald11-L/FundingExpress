@@ -2,18 +2,14 @@
 /**
  * FundingExpressAi — application intake
  * Saves lead + statement files, emails sales@expressfundingai.com with attachments
+ *
+ * Setup SMTP in browser: /submit-application.php?setup=1
+ * Status JSON: /submit-application.php?status=1
  */
-header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
   http_response_code(204);
-  exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  http_response_code(405);
-  echo json_encode(['ok' => false, 'error' => 'Method not allowed']);
   exit;
 }
 
@@ -38,6 +34,117 @@ if (is_file($configFile)) {
   }
 }
 
+$smtpConfigured = !empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE';
+
+// ---- Browser setup + status (no separate setup-mail.php required) ----
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  $logFile = __DIR__ . '/uploads/mail-log.txt';
+  $tail = '';
+  if (is_file($logFile)) {
+    $lines = @file($logFile, FILE_IGNORE_NEW_LINES);
+    if (is_array($lines)) {
+      $tail = implode("\n", array_slice($lines, -8));
+    }
+  }
+  echo json_encode([
+    'ok' => true,
+    'to' => $mailCfg['to'],
+    'smtpConfigured' => $smtpConfigured,
+    'smtpHost' => $mailCfg['smtp_host'] ?? '',
+    'configFileExists' => is_file($configFile),
+    'mailLogTail' => $tail,
+  ], JSON_PRETTY_PRINT);
+  exit;
+}
+
+if (
+  ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['setup']))
+  || ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fe_setup']))
+) {
+  header('Content-Type: text/html; charset=utf-8');
+  $msg = '';
+  $err = '';
+  $ok = false;
+
+  if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fe_setup'])) {
+    $pass = isset($_POST['smtp_pass']) ? trim((string)$_POST['smtp_pass']) : '';
+    $host = isset($_POST['smtp_host']) ? trim((string)$_POST['smtp_host']) : 'smtp.hostinger.com';
+    $port = isset($_POST['smtp_port']) ? (int)$_POST['smtp_port'] : 465;
+    $secure = isset($_POST['smtp_secure']) ? trim((string)$_POST['smtp_secure']) : 'ssl';
+    if ($pass === '') {
+      $err = 'Enter the sales@ mailbox password.';
+    } else {
+      $export = var_export([
+        'to' => 'sales@expressfundingai.com',
+        'from' => 'sales@expressfundingai.com',
+        'from_name' => 'FundingExpressAi',
+        'smtp_host' => $host !== '' ? $host : 'smtp.hostinger.com',
+        'smtp_port' => $port > 0 ? $port : 465,
+        'smtp_secure' => in_array($secure, ['ssl', 'tls'], true) ? $secure : 'ssl',
+        'smtp_user' => 'sales@expressfundingai.com',
+        'smtp_pass' => $pass,
+        'smtp_timeout' => 30,
+      ], true);
+      $php = "<?php\n// Auto-generated — do not commit.\nreturn " . $export . ";\n";
+      if (@file_put_contents($configFile, $php) === false) {
+        $err = 'Could not write mail-config.php. Check public_html write permissions.';
+      } else {
+        $loaded = include $configFile;
+        if (is_array($loaded)) $mailCfg = array_merge($mailCfg, $loaded);
+        $smtpConfigured = true;
+        $result = fe_smtp_send_auto($mailCfg, [
+          'to' => $mailCfg['to'],
+          'from' => $mailCfg['from'],
+          'from_name' => $mailCfg['from_name'],
+          'reply_to' => $mailCfg['from'],
+          'subject' => 'FundingExpressAi SMTP test — success',
+          'body' => "SMTP test OK.\n\nApplications will now email sales@expressfundingai.com.",
+          'attachments' => [],
+        ]);
+        if (!empty($result['ok'])) {
+          $mailCfg['smtp_host'] = $result['host'] ?? $mailCfg['smtp_host'];
+          $mailCfg['smtp_port'] = $result['port'] ?? $mailCfg['smtp_port'];
+          $mailCfg['smtp_secure'] = ((int)$mailCfg['smtp_port'] === 587) ? 'tls' : 'ssl';
+          @file_put_contents($configFile, "<?php\nreturn " . var_export($mailCfg, true) . ";\n");
+          $ok = true;
+          $msg = 'Success. Test email sent to sales@expressfundingai.com via ' . ($result['host'] ?? 'SMTP') . ':' . ($result['port'] ?? '') . '. You can close this page.';
+        } else {
+          $err = 'Saved password, but SMTP still failed. Details: ' . ($result['error'] ?? 'unknown');
+        }
+      }
+    }
+  }
+
+  echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
+  echo '<title>FundingExpressAi mail setup</title>';
+  echo '<style>body{font-family:Segoe UI,system-ui,sans-serif;background:#f4f7f5;margin:0;padding:40px 16px;color:#10231a}.box{max-width:480px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}h1{font-size:1.2rem;margin:0 0 8px}p{color:#5a6b63;line-height:1.5}label{display:block;font-weight:700;font-size:.85rem;margin:14px 0 6px}input,select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #c9d6cf;border-radius:10px}button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#0B8F4E;color:#fff;font-weight:800;cursor:pointer}.ok{background:#e8f7ef;color:#086138;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}.err{background:#fdecec;color:#9b1c1c;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}</style></head><body><div class="box">';
+  echo '<h1>Connect sales@ email</h1><p>Enter the <strong>sales@expressfundingai.com</strong> mailbox password from Hostinger → Emails.</p>';
+  if ($ok && $msg) echo '<div class="ok">' . htmlspecialchars($msg) . '</div>';
+  if ($err) echo '<div class="err">' . htmlspecialchars($err) . '</div>';
+  if (!$ok) {
+    echo '<form method="post"><input type="hidden" name="fe_setup" value="1">';
+    echo '<label>Password for sales@</label><input type="password" name="smtp_pass" required autocomplete="current-password">';
+    echo '<label>SMTP host</label><select name="smtp_host"><option value="smtp.hostinger.com">smtp.hostinger.com</option><option value="smtp.titan.email">smtp.titan.email (Titan)</option></select>';
+    echo '<label>Port</label><select name="smtp_port" id="p"><option value="465">465 SSL</option><option value="587">587 TLS</option></select>';
+    echo '<label>Encryption</label><select name="smtp_secure" id="s"><option value="ssl">ssl</option><option value="tls">tls</option></select>';
+    echo '<button type="submit">Save &amp; send test email</button></form>';
+    echo '<script>document.getElementById("p").onchange=function(){document.getElementById("s").value=this.value==="587"?"tls":"ssl"};</script>';
+  }
+  echo '<p style="font-size:.82rem;margin-top:16px">Status: <a href="?status=1">submit-application.php?status=1</a></p>';
+  echo '</div></body></html>';
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  header('Content-Type: application/json; charset=utf-8');
+  http_response_code(405);
+  echo json_encode(['ok' => false, 'error' => 'Method not allowed. Use ?setup=1 to configure email.']);
+  exit;
+}
+
+header('Content-Type: application/json; charset=utf-8');
+
 $to = $mailCfg['to'];
 $from = $mailCfg['from'];
 
@@ -49,7 +156,6 @@ if (stripos($contentType, 'multipart/form-data') !== false || !empty($_POST)) {
   $payload = isset($_POST['payload']) ? $_POST['payload'] : '';
   $data = json_decode($payload, true);
   if (!is_array($data)) {
-    // Rare: some hosts leave payload only in raw body
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);
   }
@@ -299,10 +405,11 @@ foreach ($savedFiles as $f) {
 $mailOk = false;
 $mailError = '';
 $mailVia = '';
+$needsActivation = false;
 
-// Preferred: authenticated SMTP (Hostinger requires this for reliable delivery)
-if (!empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE') {
-  $smtpResult = fe_smtp_send($mailCfg, [
+// 1) Authenticated SMTP (tries Hostinger + Titan ports automatically)
+if ($smtpConfigured) {
+  $smtpResult = fe_smtp_send_auto($mailCfg, [
     'to' => $to,
     'from' => $from,
     'from_name' => $mailCfg['from_name'] ?? 'FundingExpressAi',
@@ -313,10 +420,24 @@ if (!empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBO
   ]);
   $mailOk = !empty($smtpResult['ok']);
   $mailError = $smtpResult['error'] ?? '';
-  $mailVia = $mailOk ? ('smtp:' . ($smtpResult['host'] ?? 'ok')) : 'smtp-failed';
+  $mailVia = $mailOk ? ('smtp:' . ($smtpResult['host'] ?? 'ok') . ':' . ($smtpResult['port'] ?? '')) : 'smtp-failed';
 }
 
-// Fallback: PHP mail() plain text (often unreliable on Hostinger; no attachments)
+// 2) FormSubmit backup (no mailbox password; first time may need confirm link in sales@)
+if (!$mailOk) {
+  $fsBody = $bodyText . "\r\n\r\n[Files on server: uploads/" . $leadId . "/]";
+  $fs = fe_formsubmit_send($to, $subject, $fsBody, $replyTo);
+  if (!empty($fs['ok'])) {
+    $mailOk = true;
+    $mailVia = 'formsubmit';
+    $needsActivation = !empty($fs['needsActivation']);
+    $mailError = '';
+  } else {
+    $mailError = trim($mailError . ' | ' . ($fs['error'] ?? 'FormSubmit failed'), ' |');
+  }
+}
+
+// 3) Last resort: PHP mail()
 if (!$mailOk) {
   $plainHeaders = 'From: FundingExpressAi <' . $from . '>' . "\r\n"
     . 'Reply-To: ' . $replyTo . "\r\n"
@@ -329,9 +450,9 @@ if (!$mailOk) {
     $mailOk = @mail($to, $encodedSubject, $fallbackBody, $plainHeaders);
   }
   if ($mailOk) {
-    $mailVia = $mailVia === 'smtp-failed' ? 'mail-fallback-after-smtp' : 'mail';
+    $mailVia = 'mail';
   } elseif ($mailError === '') {
-    $mailError = 'PHP mail() returned false. Configure SMTP via setup-mail.php';
+    $mailError = 'All mail methods failed. Open submit-application.php?setup=1';
   }
 }
 
@@ -355,7 +476,8 @@ if ($mailOk || $savedOk) {
     'mailOk' => (bool)$mailOk,
     'mailVia' => $mailVia,
     'mailError' => $mailOk ? '' : $mailError,
-    'smtpConfigured' => !empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE',
+    'needsActivation' => $needsActivation,
+    'smtpConfigured' => $smtpConfigured,
     'leadId' => $leadId,
     'filesSaved' => count($savedFiles),
     'filesAttached' => count($attachPayload),
