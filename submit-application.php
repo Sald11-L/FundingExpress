@@ -20,7 +20,9 @@ $mailCfg = [
   'to' => 'sales@expressfundingai.com',
   'from' => 'sales@expressfundingai.com',
   'from_name' => 'FundingExpressAi',
-  'backup_to' => '', // optional personal Gmail/Outlook that actually receives mail
+  'backup_to' => '', // personal Gmail/Outlook that actually receives mail
+  // Activated FormSubmit hash for sales@ (from FormSubmit activation email)
+  'formsubmit_id' => '39f462475459e8d7e6cfdfa4599ffb7c',
   'smtp_host' => 'smtp.hostinger.com',
   'smtp_port' => 465,
   'smtp_secure' => 'ssl',
@@ -47,97 +49,96 @@ function fe_mail_log($line) {
   @file_put_contents($logDir . DIRECTORY_SEPARATOR . 'mail-log.txt', date('c') . ' ' . $line . "\n", FILE_APPEND);
 }
 
-/** Deliver using every available channel; also copies to backup_to if set. */
+/**
+ * Deliver applications.
+ * Backup inbox (Gmail) is the reliable destination; sales@ is also tried.
+ * FormSubmit uses activated hash when available.
+ */
 function fe_deliver_application_email($mailCfg, $smtpConfigured, $to, $from, $fromName, $replyTo, $subject, $bodyText, $attachPayload = []) {
   $channels = [];
   $mailOk = false;
   $mailVia = [];
   $mailError = [];
   $needsActivation = false;
-  $recipients = [$to];
   $backup = trim((string)($mailCfg['backup_to'] ?? ''));
-  if ($backup !== '' && strcasecmp($backup, $to) !== 0 && filter_var($backup, FILTER_VALIDATE_EMAIL)) {
-    $recipients[] = $backup;
+  $formId = trim((string)($mailCfg['formsubmit_id'] ?? ''));
+  $hasBackup = ($backup !== '' && strcasecmp($backup, $to) !== 0 && filter_var($backup, FILTER_VALIDATE_EMAIL));
+
+  // Prefer backup inbox first (it receives); keep sales@ second
+  $smtpTargets = [];
+  if ($hasBackup) $smtpTargets[] = ['email' => $backup, 'label' => 'backup', 'subject' => $subject];
+  $smtpTargets[] = ['email' => $to, 'label' => 'sales', 'subject' => $hasBackup ? ('[sales@] ' . $subject) : $subject];
+
+  // FormSubmit via activated hash → sales@ destination
+  $fs = fe_formsubmit_send($to, $subject, $bodyText, $replyTo ?: $to, $attachPayload, $formId);
+  $channels['formsubmit'] = $fs;
+  if (!empty($fs['ok'])) {
+    $mailOk = true;
+    $mailVia[] = 'formsubmit:' . ($formId !== '' ? 'hash' : $to);
+    if (!empty($fs['needsActivation'])) $needsActivation = true;
+  } else {
+    $mailError[] = 'formsubmit: ' . ($fs['error'] ?? 'fail');
   }
 
-  foreach ($recipients as $recipient) {
-    $tag = ($recipient === $to) ? 'primary' : 'backup';
-
-    // FormSubmit per recipient (activation required once per address)
-    $fs = fe_formsubmit_send($recipient, $subject, $bodyText, $replyTo ?: $recipient, $attachPayload);
-    $channels['formsubmit_' . $tag] = $fs;
-    if (!empty($fs['ok'])) {
+  // Also FormSubmit naked backup address (may need its own activation once)
+  if ($hasBackup) {
+    $fsb = fe_formsubmit_send($backup, $subject, $bodyText, $replyTo ?: $backup, $attachPayload, '');
+    $channels['formsubmit_backup'] = $fsb;
+    if (!empty($fsb['ok'])) {
       $mailOk = true;
-      $mailVia[] = 'formsubmit:' . $recipient;
-      if (!empty($fs['needsActivation'])) $needsActivation = true;
+      $mailVia[] = 'formsubmit:' . $backup;
+      if (!empty($fsb['needsActivation'])) $needsActivation = true;
     } else {
-      $mailError[] = 'formsubmit(' . $recipient . '): ' . ($fs['error'] ?? 'fail');
+      $mailError[] = 'formsubmit_backup: ' . ($fsb['error'] ?? 'fail');
     }
   }
 
-  // SMTP to primary (and BCC backup when possible)
+  // SMTP with attachments — backup first
   if ($smtpConfigured) {
-    $smtpMail = [
-      'to' => $to,
-      'from' => $from,
-      'from_name' => $fromName,
-      'reply_to' => $replyTo ?: $from,
-      'subject' => $subject,
-      'body' => $bodyText,
-      'attachments' => $attachPayload,
-      'bcc' => ($backup && strcasecmp($backup, $to) !== 0) ? $backup : '',
-    ];
-    $smtpResult = fe_smtp_send_auto($mailCfg, $smtpMail);
-    $channels['smtp'] = [
-      'ok' => !empty($smtpResult['ok']),
-      'error' => $smtpResult['error'] ?? '',
-      'host' => $smtpResult['host'] ?? '',
-      'port' => $smtpResult['port'] ?? '',
-    ];
-    if (!empty($smtpResult['ok'])) {
-      $mailOk = true;
-      $mailVia[] = 'smtp:' . ($smtpResult['host'] ?? '') . ':' . ($smtpResult['port'] ?? '');
-      // If BCC unsupported in older mailer, send a second SMTP copy
-      if ($backup && strcasecmp($backup, $to) !== 0) {
-        $copy = fe_smtp_send_auto($mailCfg, [
-          'to' => $backup,
-          'from' => $from,
-          'from_name' => $fromName,
-          'reply_to' => $replyTo ?: $from,
-          'subject' => '[COPY] ' . $subject,
-          'body' => $bodyText . "\r\n\r\n(This is a backup copy. Primary inbox: " . $to . ")",
-          'attachments' => $attachPayload,
-        ]);
-        $channels['smtp_backup'] = [
-          'ok' => !empty($copy['ok']),
-          'error' => $copy['error'] ?? '',
-          'to' => $backup,
-        ];
-        if (!empty($copy['ok'])) {
-          $mailVia[] = 'smtp_backup:' . $backup;
-        }
+    foreach ($smtpTargets as $target) {
+      $smtpResult = fe_smtp_send_auto($mailCfg, [
+        'to' => $target['email'],
+        'from' => $from,
+        'from_name' => $fromName,
+        'reply_to' => $replyTo ?: $from,
+        'subject' => $target['subject'],
+        'body' => $bodyText . ($target['label'] === 'backup'
+          ? "\r\n\r\n(Delivered to your backup inbox. sales@ copy is also attempted.)"
+          : ''),
+        'attachments' => $attachPayload,
+      ]);
+      $channels['smtp_' . $target['label']] = [
+        'ok' => !empty($smtpResult['ok']),
+        'error' => $smtpResult['error'] ?? '',
+        'host' => $smtpResult['host'] ?? '',
+        'port' => $smtpResult['port'] ?? '',
+        'to' => $target['email'],
+        'files' => count($attachPayload),
+      ];
+      if (!empty($smtpResult['ok'])) {
+        $mailOk = true;
+        $mailVia[] = 'smtp:' . $target['label'] . ':' . $target['email'];
+      } else {
+        $mailError[] = 'smtp_' . $target['label'] . ': ' . ($smtpResult['error'] ?? 'fail');
       }
-    } else {
-      $mailError[] = 'smtp: ' . ($smtpResult['error'] ?? 'fail');
     }
   } else {
     $channels['smtp'] = ['ok' => false, 'error' => 'not configured'];
   }
 
-  // PHP mail last resort to primary + backup
   if (!$mailOk) {
-    foreach ($recipients as $recipient) {
+    foreach ($smtpTargets as $target) {
       $plainHeaders = 'From: ' . $fromName . ' <' . $from . '>' . "\r\n"
         . 'Reply-To: ' . ($replyTo ?: $from) . "\r\n"
         . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
         . 'X-Mailer: FundingExpressAi';
-      $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-      $phpMailOk = @mail($recipient, $encodedSubject, $bodyText, $plainHeaders, '-f' . $from);
-      if (!$phpMailOk) $phpMailOk = @mail($recipient, $encodedSubject, $bodyText, $plainHeaders);
-      $channels['php_mail_' . $recipient] = ['ok' => (bool)$phpMailOk];
+      $encodedSubject = '=?UTF-8?B?' . base64_encode($target['subject']) . '?=';
+      $phpMailOk = @mail($target['email'], $encodedSubject, $bodyText, $plainHeaders, '-f' . $from);
+      if (!$phpMailOk) $phpMailOk = @mail($target['email'], $encodedSubject, $bodyText, $plainHeaders);
+      $channels['php_mail_' . $target['label']] = ['ok' => (bool)$phpMailOk];
       if ($phpMailOk) {
         $mailOk = true;
-        $mailVia[] = 'php_mail:' . $recipient;
+        $mailVia[] = 'php_mail:' . $target['email'];
       }
     }
     if (!$mailOk) $mailError[] = 'php_mail: false';
@@ -149,7 +150,7 @@ function fe_deliver_application_email($mailCfg, $smtpConfigured, $to, $from, $fr
     'error' => implode(' | ', $mailError),
     'needsActivation' => $needsActivation,
     'channels' => $channels,
-    'recipients' => $recipients,
+    'recipients' => array_map(function ($t) { return $t['email']; }, $smtpTargets),
   ];
 }
 

@@ -6,27 +6,29 @@
 <title>Activate application emails</title>
 <style>
   body{font-family:Segoe UI,system-ui,sans-serif;background:#f4f7f5;margin:0;padding:40px 16px;color:#10231a}
-  .box{max-width:480px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}
+  .box{max-width:520px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}
   h1{font-size:1.2rem;margin:0 0 10px}
   p{color:#5a6b63;line-height:1.5}
-  button{margin-top:8px;width:100%;padding:13px;border:0;border-radius:10px;background:#0B8F4E;color:#fff;font-weight:800;cursor:pointer}
+  .ok{background:#e8f7ef;color:#086138;padding:12px;border-radius:10px;font-weight:600;margin:14px 0}
   .warn{background:#fff8e6;color:#7a5b00;padding:12px;border-radius:10px;font-weight:600;margin:14px 0}
+  code{background:#f4f7f5;padding:2px 6px;border-radius:6px;font-size:.85rem}
+  a{color:#0B8F4E;font-weight:700}
 </style>
 </head>
 <body>
   <div class="box">
-    <h1>Activate sales@ application emails</h1>
-    <p>Click once. FormSubmit will email <strong>sales@expressfundingai.com</strong> with a confirm link. Open that email and click Confirm.</p>
-    <div class="warn">After you confirm, application emails (with statement files when possible) can reach sales@.</div>
-    <form action="https://formsubmit.co/sales@expressfundingai.com" method="POST">
-      <input type="hidden" name="_subject" value="Activate FundingExpressAi application emails">
-      <input type="hidden" name="message" value="Please confirm this email so FundingExpressAi can deliver applications to sales@.">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="text" name="_honey" style="display:none">
-      <input type="email" name="email" value="sales@expressfundingai.com" readonly style="width:100%;padding:11px;border:1px solid #c9d6cf;border-radius:10px;box-sizing:border-box;margin-bottom:10px">
-      <button type="submit">Send activation email</button>
-    </form>
-    <p style="font-size:.85rem;margin-top:16px">Also open the leads inbox anytime: <a href="leads-viewer.php">leads-viewer.php</a> (uses sales@ password). Attachments are stored there even if email fails.</p>
+    <h1>Activate FormSubmit</h1>
+    <div class="warn">In your email from FormSubmit, click the blue <strong>ACTIVATE FORM</strong> button. That step is required.</div>
+    <div class="ok">After you click Activate, applications will send through FormSubmit ID <code>39f462475459e8d7e6cfdfa4599ffb7c</code>.</div>
+    <p>Your backup Gmail already receives SMTP copies (including bank statement attachments on real applications).</p>
+    <p>Next:</p>
+    <ol style="color:#5a6b63;line-height:1.6">
+      <li>Click <strong>ACTIVATE FORM</strong> in the FormSubmit email</li>
+      <li>Re-upload the latest <code>submit-application.php</code> + <code>smtp-mailer.php</code> if you haven’t</li>
+      <li>Submit a full test application with a small PDF attached</li>
+      <li>Check your <strong>backup Gmail</strong> for the application + attachment</li>
+    </ol>
+    <p style="font-size:.85rem;margin-top:16px">Leads + files are also at <a href="leads-viewer.php">leads-viewer.php</a> (sales@ password).</p>
   </div>
 </body>
 </html>

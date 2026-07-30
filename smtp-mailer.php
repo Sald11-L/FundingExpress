@@ -180,11 +180,12 @@ function fe_smtp_send_auto(array $cfg, array $mail) {
 
 /**
  * Backup relay via FormSubmit.
- * First browser activation required: open /activate-email.html once and confirm the email.
+ * Prefer activated form hash ($formId) over naked email.
  * Pass $attachments as [{path,name,mime}, ...] for bank statements (multipart).
  */
-function fe_formsubmit_send($to, $subject, $body, $replyEmail, $attachments = []) {
-  $url = 'https://formsubmit.co/ajax/' . rawurlencode($to);
+function fe_formsubmit_send($to, $subject, $body, $replyEmail, $attachments = [], $formId = '') {
+  $endpoint = $formId !== '' ? $formId : $to;
+  $url = 'https://formsubmit.co/ajax/' . rawurlencode($endpoint);
 
   if (!function_exists('curl_init')) {
     return ['ok' => false, 'error' => 'curl not available for FormSubmit'];
