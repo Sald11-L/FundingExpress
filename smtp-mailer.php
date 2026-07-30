@@ -209,16 +209,19 @@ function fe_formsubmit_send($to, $subject, $body, $replyEmail) {
       return ['ok' => false, 'error' => 'FormSubmit curl error: ' . $cerr];
     }
     $data = json_decode($resp, true);
-    $success = is_array($data) && (
-      (isset($data['success']) && ($data['success'] === true || $data['success'] === 'true'))
-      || (isset($data['message']) && stripos((string)$data['message'], 'activat') !== false)
+    $msg = (is_array($data) && isset($data['message'])) ? (string)$data['message'] : '';
+    $needsActivate = $msg !== '' && (
+      stripos($msg, 'activat') !== false
+      || stripos($msg, 'confirm') !== false
+      || stripos($msg, 'verify') !== false
     );
-    if ($code >= 200 && $code < 300 && ($success || $code === 200)) {
-      $needsActivate = is_array($data) && isset($data['message']) && stripos((string)$data['message'], 'activat') !== false;
+    $successFlag = is_array($data) && isset($data['success']) && ($data['success'] === true || $data['success'] === 'true');
+    // Activation responses often come back as success=false but still mean "check your inbox"
+    if ($code >= 200 && $code < 300 && ($successFlag || $needsActivate || ($code === 200 && is_array($data)))) {
       return [
         'ok' => true,
         'error' => '',
-        'needsActivation' => $needsActivate,
+        'needsActivation' => $needsActivate || !$successFlag,
         'response' => $resp,
       ];
     }

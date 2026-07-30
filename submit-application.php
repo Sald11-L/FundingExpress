@@ -3,8 +3,9 @@
  * FundingExpressAi — application intake
  * Saves lead + statement files, emails sales@expressfundingai.com with attachments
  *
- * Setup SMTP in browser: /submit-application.php?setup=1
- * Status JSON: /submit-application.php?status=1
+ * Setup: /submit-application.php?setup=1
+ * Status: /submit-application.php?status=1
+ * Test send: /submit-application.php?testsend=1
  */
 header('X-Content-Type-Options: nosniff');
 
@@ -35,29 +36,155 @@ if (is_file($configFile)) {
 }
 
 $smtpConfigured = !empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE';
+$toAddress = $mailCfg['to'] ?? 'sales@expressfundingai.com';
+$logDir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads';
+if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
 
-// ---- Browser setup + status (no separate setup-mail.php required) ----
+function fe_mail_log($line) {
+  global $logDir;
+  @file_put_contents($logDir . DIRECTORY_SEPARATOR . 'mail-log.txt', date('c') . ' ' . $line . "\n", FILE_APPEND);
+}
+
+/** Deliver using every available channel; FormSubmit is primary for Hostinger free email. */
+function fe_deliver_application_email($mailCfg, $smtpConfigured, $to, $from, $fromName, $replyTo, $subject, $bodyText, $attachPayload = []) {
+  $channels = [];
+  $mailOk = false;
+  $mailVia = [];
+  $mailError = [];
+  $needsActivation = false;
+
+  // Channel A — FormSubmit (external relay; first time needs confirm link in sales@)
+  $fs = fe_formsubmit_send($to, $subject, $bodyText, $replyTo ?: $to);
+  $channels['formsubmit'] = $fs;
+  if (!empty($fs['ok'])) {
+    $mailOk = true;
+    $mailVia[] = 'formsubmit';
+    if (!empty($fs['needsActivation'])) $needsActivation = true;
+    $respMsg = '';
+    if (!empty($fs['response'])) {
+      $decoded = json_decode($fs['response'], true);
+      if (is_array($decoded) && !empty($decoded['message'])) $respMsg = (string)$decoded['message'];
+    }
+    if ($respMsg !== '' && (stripos($respMsg, 'activat') !== false || stripos($respMsg, 'confirm') !== false)) {
+      $needsActivation = true;
+    }
+  } else {
+    $mailError[] = 'formsubmit: ' . ($fs['error'] ?? 'fail');
+  }
+
+  // Channel B — SMTP (Hostinger / Titan)
+  if ($smtpConfigured) {
+    $smtpResult = fe_smtp_send_auto($mailCfg, [
+      'to' => $to,
+      'from' => $from,
+      'from_name' => $fromName,
+      'reply_to' => $replyTo ?: $from,
+      'subject' => $subject,
+      'body' => $bodyText,
+      'attachments' => $attachPayload,
+    ]);
+    $channels['smtp'] = [
+      'ok' => !empty($smtpResult['ok']),
+      'error' => $smtpResult['error'] ?? '',
+      'host' => $smtpResult['host'] ?? '',
+      'port' => $smtpResult['port'] ?? '',
+    ];
+    if (!empty($smtpResult['ok'])) {
+      $mailOk = true;
+      $mailVia[] = 'smtp:' . ($smtpResult['host'] ?? '') . ':' . ($smtpResult['port'] ?? '');
+    } else {
+      $mailError[] = 'smtp: ' . ($smtpResult['error'] ?? 'fail');
+    }
+  } else {
+    $channels['smtp'] = ['ok' => false, 'error' => 'not configured'];
+  }
+
+  // Channel C — PHP mail()
+  if (!$mailOk) {
+    $plainHeaders = 'From: ' . $fromName . ' <' . $from . '>' . "\r\n"
+      . 'Reply-To: ' . ($replyTo ?: $from) . "\r\n"
+      . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
+      . 'X-Mailer: FundingExpressAi';
+    $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $phpMailOk = @mail($to, $encodedSubject, $bodyText, $plainHeaders, '-f' . $from);
+    if (!$phpMailOk) $phpMailOk = @mail($to, $encodedSubject, $bodyText, $plainHeaders);
+    $channels['php_mail'] = ['ok' => (bool)$phpMailOk];
+    if ($phpMailOk) {
+      $mailOk = true;
+      $mailVia[] = 'php_mail';
+    } else {
+      $mailError[] = 'php_mail: false';
+    }
+  }
+
+  return [
+    'ok' => $mailOk,
+    'via' => implode(',', $mailVia),
+    'error' => implode(' | ', $mailError),
+    'needsActivation' => $needsActivation,
+    'channels' => $channels,
+  ];
+}
+
+// ---- Status ----
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status'])) {
   header('Content-Type: application/json; charset=utf-8');
-  $logFile = __DIR__ . '/uploads/mail-log.txt';
+  $logFile = $logDir . '/mail-log.txt';
   $tail = '';
   if (is_file($logFile)) {
     $lines = @file($logFile, FILE_IGNORE_NEW_LINES);
-    if (is_array($lines)) {
-      $tail = implode("\n", array_slice($lines, -8));
-    }
+    if (is_array($lines)) $tail = implode("\n", array_slice($lines, -12));
   }
   echo json_encode([
     'ok' => true,
-    'to' => $mailCfg['to'],
+    'to' => $toAddress,
     'smtpConfigured' => $smtpConfigured,
     'smtpHost' => $mailCfg['smtp_host'] ?? '',
+    'smtpPort' => $mailCfg['smtp_port'] ?? '',
     'configFileExists' => is_file($configFile),
     'mailLogTail' => $tail,
+    'hint' => 'Open ?testsend=1 to force a test email and see channel results.',
   ], JSON_PRETTY_PRINT);
   exit;
 }
 
+// ---- Force test send (uses FormSubmit + SMTP) ----
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['testsend'])) {
+  header('Content-Type: application/json; charset=utf-8');
+  $subject = 'FundingExpressAi TEST ' . date('Y-m-d H:i:s T');
+  $body = "This is a delivery test to sales@expressfundingai.com.\n\n"
+    . "Time: " . date('c') . "\n"
+    . "If you only see a FormSubmit activation email, click Confirm / Activate first, then open this test URL again.\n";
+  $result = fe_deliver_application_email(
+    $mailCfg,
+    $smtpConfigured,
+    $toAddress,
+    $mailCfg['from'],
+    $mailCfg['from_name'] ?? 'FundingExpressAi',
+    $toAddress,
+    $subject,
+    $body,
+    []
+  );
+  fe_mail_log('TESTSEND mailOk=' . ($result['ok'] ? '1' : '0') . ' via=' . $result['via'] . ' err=' . $result['error'] . ' activate=' . ($result['needsActivation'] ? '1' : '0'));
+  echo json_encode([
+    'ok' => $result['ok'],
+    'to' => $toAddress,
+    'mailVia' => $result['via'],
+    'mailError' => $result['error'],
+    'needsActivation' => $result['needsActivation'],
+    'smtpConfigured' => $smtpConfigured,
+    'channels' => $result['channels'],
+    'nextStep' => $result['needsActivation']
+      ? 'Check sales@ inbox/spam for an email from FormSubmit asking you to confirm. Click the confirm link, then reload this test URL.'
+      : ($result['ok']
+        ? 'Check sales@ inbox AND spam for subject: ' . $subject
+        : 'All channels failed. Re-run ?setup=1 with the correct sales@ mailbox password.'),
+  ], JSON_PRETTY_PRINT);
+  exit;
+}
+
+// ---- Setup form ----
 if (
   ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['setup']))
   || ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fe_setup']))
@@ -72,45 +199,51 @@ if (
     $host = isset($_POST['smtp_host']) ? trim((string)$_POST['smtp_host']) : 'smtp.hostinger.com';
     $port = isset($_POST['smtp_port']) ? (int)$_POST['smtp_port'] : 465;
     $secure = isset($_POST['smtp_secure']) ? trim((string)$_POST['smtp_secure']) : 'ssl';
-    if ($pass === '') {
+    if ($pass === '' && !$smtpConfigured) {
       $err = 'Enter the sales@ mailbox password.';
     } else {
-      $export = var_export([
-        'to' => 'sales@expressfundingai.com',
-        'from' => 'sales@expressfundingai.com',
-        'from_name' => 'FundingExpressAi',
-        'smtp_host' => $host !== '' ? $host : 'smtp.hostinger.com',
-        'smtp_port' => $port > 0 ? $port : 465,
-        'smtp_secure' => in_array($secure, ['ssl', 'tls'], true) ? $secure : 'ssl',
-        'smtp_user' => 'sales@expressfundingai.com',
-        'smtp_pass' => $pass,
-        'smtp_timeout' => 30,
-      ], true);
-      $php = "<?php\n// Auto-generated — do not commit.\nreturn " . $export . ";\n";
+      if ($pass !== '') {
+        $mailCfg['smtp_pass'] = $pass;
+      }
+      $mailCfg['to'] = 'sales@expressfundingai.com';
+      $mailCfg['from'] = 'sales@expressfundingai.com';
+      $mailCfg['from_name'] = 'FundingExpressAi';
+      $mailCfg['smtp_host'] = $host !== '' ? $host : 'smtp.hostinger.com';
+      $mailCfg['smtp_port'] = $port > 0 ? $port : 465;
+      $mailCfg['smtp_secure'] = in_array($secure, ['ssl', 'tls'], true) ? $secure : 'ssl';
+      $mailCfg['smtp_user'] = 'sales@expressfundingai.com';
+      $mailCfg['smtp_timeout'] = 30;
+      $php = "<?php\n// Auto-generated — do not commit.\nreturn " . var_export($mailCfg, true) . ";\n";
       if (@file_put_contents($configFile, $php) === false) {
         $err = 'Could not write mail-config.php. Check public_html write permissions.';
       } else {
-        $loaded = include $configFile;
-        if (is_array($loaded)) $mailCfg = array_merge($mailCfg, $loaded);
-        $smtpConfigured = true;
-        $result = fe_smtp_send_auto($mailCfg, [
-          'to' => $mailCfg['to'],
-          'from' => $mailCfg['from'],
-          'from_name' => $mailCfg['from_name'],
-          'reply_to' => $mailCfg['from'],
-          'subject' => 'FundingExpressAi SMTP test — success',
-          'body' => "SMTP test OK.\n\nApplications will now email sales@expressfundingai.com.",
-          'attachments' => [],
-        ]);
-        if (!empty($result['ok'])) {
-          $mailCfg['smtp_host'] = $result['host'] ?? $mailCfg['smtp_host'];
-          $mailCfg['smtp_port'] = $result['port'] ?? $mailCfg['smtp_port'];
+        $smtpConfigured = !empty($mailCfg['smtp_pass']);
+        $result = fe_deliver_application_email(
+          $mailCfg,
+          $smtpConfigured,
+          $mailCfg['to'],
+          $mailCfg['from'],
+          $mailCfg['from_name'],
+          $mailCfg['from'],
+          'FundingExpressAi setup test — ' . date('H:i:s'),
+          "Setup test from expressfundingai.com\n\nIf this arrived, application email delivery is working.\n",
+          []
+        );
+        fe_mail_log('SETUP mailOk=' . ($result['ok'] ? '1' : '0') . ' via=' . $result['via'] . ' err=' . $result['error']);
+        if (!empty($result['channels']['smtp']['ok'])) {
+          $mailCfg['smtp_host'] = $result['channels']['smtp']['host'] ?: $mailCfg['smtp_host'];
+          $mailCfg['smtp_port'] = $result['channels']['smtp']['port'] ?: $mailCfg['smtp_port'];
           $mailCfg['smtp_secure'] = ((int)$mailCfg['smtp_port'] === 587) ? 'tls' : 'ssl';
           @file_put_contents($configFile, "<?php\nreturn " . var_export($mailCfg, true) . ";\n");
+        }
+        if (!empty($result['ok'])) {
           $ok = true;
-          $msg = 'Success. Test email sent to sales@expressfundingai.com via ' . ($result['host'] ?? 'SMTP') . ':' . ($result['port'] ?? '') . '. You can close this page.';
+          $msg = 'Delivery channel OK via: ' . $result['via'] . '. Check sales@ inbox/spam now.';
+          if (!empty($result['needsActivation'])) {
+            $msg .= ' IMPORTANT: FormSubmit sent an activation email — open sales@ and click Confirm/Activate, then open ?testsend=1 again.';
+          }
         } else {
-          $err = 'Saved password, but SMTP still failed. Details: ' . ($result['error'] ?? 'unknown');
+          $err = 'All channels failed: ' . $result['error'];
         }
       }
     }
@@ -118,20 +251,23 @@ if (
 
   echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
   echo '<title>FundingExpressAi mail setup</title>';
-  echo '<style>body{font-family:Segoe UI,system-ui,sans-serif;background:#f4f7f5;margin:0;padding:40px 16px;color:#10231a}.box{max-width:480px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}h1{font-size:1.2rem;margin:0 0 8px}p{color:#5a6b63;line-height:1.5}label{display:block;font-weight:700;font-size:.85rem;margin:14px 0 6px}input,select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #c9d6cf;border-radius:10px}button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#0B8F4E;color:#fff;font-weight:800;cursor:pointer}.ok{background:#e8f7ef;color:#086138;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}.err{background:#fdecec;color:#9b1c1c;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}</style></head><body><div class="box">';
-  echo '<h1>Connect sales@ email</h1><p>Enter the <strong>sales@expressfundingai.com</strong> mailbox password from Hostinger → Emails.</p>';
+  echo '<style>body{font-family:Segoe UI,system-ui,sans-serif;background:#f4f7f5;margin:0;padding:40px 16px;color:#10231a}.box{max-width:520px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}h1{font-size:1.2rem;margin:0 0 8px}p{color:#5a6b63;line-height:1.5}label{display:block;font-weight:700;font-size:.85rem;margin:14px 0 6px}input,select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #c9d6cf;border-radius:10px}button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#0B8F4E;color:#fff;font-weight:800;cursor:pointer}.ok{background:#e8f7ef;color:#086138;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}.err{background:#fdecec;color:#9b1c1c;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}.warn{background:#fff8e6;color:#7a5b00;padding:12px;border-radius:10px;margin-bottom:12px;font-weight:600}a{color:#0B8F4E;font-weight:700}</style></head><body><div class="box">';
+  echo '<h1>Connect sales@ email</h1>';
+  echo '<div class="warn">Hostinger free Business Email often blocks server SMTP. We also send through FormSubmit. On first use, sales@ gets an activation email — you must click it.</div>';
+  echo '<p>SMTP configured: <strong>' . ($smtpConfigured ? 'yes' : 'no') . '</strong> &middot; To: <strong>' . htmlspecialchars($toAddress) . '</strong></p>';
   if ($ok && $msg) echo '<div class="ok">' . htmlspecialchars($msg) . '</div>';
   if ($err) echo '<div class="err">' . htmlspecialchars($err) . '</div>';
-  if (!$ok) {
-    echo '<form method="post"><input type="hidden" name="fe_setup" value="1">';
-    echo '<label>Password for sales@</label><input type="password" name="smtp_pass" required autocomplete="current-password">';
-    echo '<label>SMTP host</label><select name="smtp_host"><option value="smtp.hostinger.com">smtp.hostinger.com</option><option value="smtp.titan.email">smtp.titan.email (Titan)</option></select>';
-    echo '<label>Port</label><select name="smtp_port" id="p"><option value="465">465 SSL</option><option value="587">587 TLS</option></select>';
-    echo '<label>Encryption</label><select name="smtp_secure" id="s"><option value="ssl">ssl</option><option value="tls">tls</option></select>';
-    echo '<button type="submit">Save &amp; send test email</button></form>';
-    echo '<script>document.getElementById("p").onchange=function(){document.getElementById("s").value=this.value==="587"?"tls":"ssl"};</script>';
+  echo '<form method="post"><input type="hidden" name="fe_setup" value="1">';
+  echo '<label>Password for sales@ (Hostinger mailbox password)</label><input type="password" name="smtp_pass" ' . ($smtpConfigured ? '' : 'required') . ' autocomplete="current-password" placeholder="' . ($smtpConfigured ? 'Leave blank to keep current password' : 'Required') . '">';
+  if ($smtpConfigured) {
+    echo '<p style="font-size:.82rem">Leave password blank and submit to re-test with the saved password.</p>';
   }
-  echo '<p style="font-size:.82rem;margin-top:16px">Status: <a href="?status=1">submit-application.php?status=1</a></p>';
+  echo '<label>SMTP host</label><select name="smtp_host"><option value="smtp.hostinger.com">smtp.hostinger.com</option><option value="smtp.titan.email">smtp.titan.email</option></select>';
+  echo '<label>Port</label><select name="smtp_port" id="p"><option value="465">465 SSL</option><option value="587">587 TLS</option></select>';
+  echo '<label>Encryption</label><select name="smtp_secure" id="s"><option value="ssl">ssl</option><option value="tls">tls</option></select>';
+  echo '<button type="submit">Save / re-test delivery</button></form>';
+  echo '<p style="margin-top:18px"><a href="?testsend=1">Run JSON test send</a> &nbsp;|&nbsp; <a href="?status=1">Status / log</a></p>';
+  echo '<script>document.getElementById("p").onchange=function(){document.getElementById("s").value=this.value==="587"?"tls":"ssl"};</script>';
   echo '</div></body></html>';
   exit;
 }
@@ -402,69 +538,30 @@ foreach ($savedFiles as $f) {
   ];
 }
 
-$mailOk = false;
-$mailError = '';
-$mailVia = '';
-$needsActivation = false;
+$deliverBody = $bodyText . "\r\n\r\n[Files on server: uploads/" . $leadId . "/]";
+$deliver = fe_deliver_application_email(
+  $mailCfg,
+  $smtpConfigured,
+  $to,
+  $from,
+  $mailCfg['from_name'] ?? 'FundingExpressAi',
+  $replyTo,
+  $subject,
+  $deliverBody,
+  $attachPayload
+);
+$mailOk = !empty($deliver['ok']);
+$mailVia = $deliver['via'];
+$mailError = $deliver['error'];
+$needsActivation = !empty($deliver['needsActivation']);
 
-// 1) Authenticated SMTP (tries Hostinger + Titan ports automatically)
-if ($smtpConfigured) {
-  $smtpResult = fe_smtp_send_auto($mailCfg, [
-    'to' => $to,
-    'from' => $from,
-    'from_name' => $mailCfg['from_name'] ?? 'FundingExpressAi',
-    'reply_to' => $replyTo,
-    'subject' => $subject,
-    'body' => $bodyText,
-    'attachments' => $attachPayload,
-  ]);
-  $mailOk = !empty($smtpResult['ok']);
-  $mailError = $smtpResult['error'] ?? '';
-  $mailVia = $mailOk ? ('smtp:' . ($smtpResult['host'] ?? 'ok') . ':' . ($smtpResult['port'] ?? '')) : 'smtp-failed';
-}
-
-// 2) FormSubmit backup (no mailbox password; first time may need confirm link in sales@)
-if (!$mailOk) {
-  $fsBody = $bodyText . "\r\n\r\n[Files on server: uploads/" . $leadId . "/]";
-  $fs = fe_formsubmit_send($to, $subject, $fsBody, $replyTo);
-  if (!empty($fs['ok'])) {
-    $mailOk = true;
-    $mailVia = 'formsubmit';
-    $needsActivation = !empty($fs['needsActivation']);
-    $mailError = '';
-  } else {
-    $mailError = trim($mailError . ' | ' . ($fs['error'] ?? 'FormSubmit failed'), ' |');
-  }
-}
-
-// 3) Last resort: PHP mail()
-if (!$mailOk) {
-  $plainHeaders = 'From: FundingExpressAi <' . $from . '>' . "\r\n"
-    . 'Reply-To: ' . $replyTo . "\r\n"
-    . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
-    . 'X-Mailer: FundingExpressAi';
-  $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-  $fallbackBody = $bodyText . "\r\n\r\n[Note: attachments are saved on the server under uploads/" . $leadId . "/]";
-  $mailOk = @mail($to, $encodedSubject, $fallbackBody, $plainHeaders, '-f' . $from);
-  if (!$mailOk) {
-    $mailOk = @mail($to, $encodedSubject, $fallbackBody, $plainHeaders);
-  }
-  if ($mailOk) {
-    $mailVia = 'mail';
-  } elseif ($mailError === '') {
-    $mailError = 'All mail methods failed. Open submit-application.php?setup=1';
-  }
-}
-
-@file_put_contents(
-  $baseDir . DIRECTORY_SEPARATOR . 'mail-log.txt',
-  date('c') . ' lead=' . $leadId . ' to=' . $to
-    . ' mailOk=' . ($mailOk ? '1' : '0')
-    . ' via=' . $mailVia
-    . ' files=' . count($savedFiles)
-    . ($mailError !== '' ? ' err=' . $mailError : '')
-    . "\n",
-  FILE_APPEND
+fe_mail_log(
+  'lead=' . $leadId . ' to=' . $to
+  . ' mailOk=' . ($mailOk ? '1' : '0')
+  . ' via=' . $mailVia
+  . ' files=' . count($savedFiles)
+  . ($mailError !== '' ? ' err=' . $mailError : '')
+  . ($needsActivation ? ' NEEDS_FORMSUBMIT_ACTIVATION' : '')
 );
 
 $savedOk = is_file($leadDir . DIRECTORY_SEPARATOR . 'application.json');
@@ -478,6 +575,7 @@ if ($mailOk || $savedOk) {
     'mailError' => $mailOk ? '' : $mailError,
     'needsActivation' => $needsActivation,
     'smtpConfigured' => $smtpConfigured,
+    'channels' => $deliver['channels'],
     'leadId' => $leadId,
     'filesSaved' => count($savedFiles),
     'filesAttached' => count($attachPayload),
