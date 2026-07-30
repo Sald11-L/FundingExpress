@@ -1453,8 +1453,21 @@
       averageRevenue: Math.round(avg),
       display: est.tier === 'below' ? 'Custom review' : (fmt(est.low) + ' - ' + fmt(est.high) + (est.plus ? '+' : ''))
     };
-    sendApplicationEmail(estSummary).then(function(){
+    sendApplicationEmail(estSummary).then(function(res){
       applicationCompleted = true;
+      var banner = document.getElementById('congratsBanner');
+      var mailOk = !!(res && res.data && res.data.mailOk);
+      var needsAct = !!(res && res.data && res.data.needsActivation);
+      var leadId = res && res.data && res.data.leadId ? res.data.leadId : '';
+      if (banner){
+        if (needsAct){
+          banner.innerHTML = '<h4>Application saved</h4><p>Email delivery needs one-time activation for sales@. Open <a href="activate-email.html" target="_blank" rel="noopener">activate-email.html</a>, then check sales@ spam. Lead: ' + leadId + '</p>';
+        } else if (mailOk){
+          banner.innerHTML = '<h4>Congrats!</h4><p>Your application was submitted. A funding specialist will follow up shortly.</p>';
+        } else {
+          banner.innerHTML = '<h4>Application saved on file</h4><p>We could not confirm email delivery. Your info is stored (lead ' + leadId + '). Please contact sales@expressfundingai.com if you are not reached.</p>';
+        }
+      }
     });
 
     document.getElementById('finishBtn').addEventListener('click', function(){
@@ -1463,10 +1476,6 @@
       this.disabled = true;
       this.style.opacity = '0.85';
       fireConfetti();
-      var banner = document.getElementById('congratsBanner');
-      if (banner){
-        banner.innerHTML = '<h4>Congrats!</h4><p>Your application is in. You will be contacted shortly.</p>';
-      }
     });
   }
 

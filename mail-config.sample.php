@@ -7,6 +7,7 @@ return [
   'to' => 'sales@expressfundingai.com',
   'from' => 'sales@expressfundingai.com',
   'from_name' => 'FundingExpressAi',
+  'backup_to' => '', // optional Gmail/Outlook that actually receives mail
   'smtp_host' => 'smtp.hostinger.com',
   'smtp_port' => 465,
   'smtp_secure' => 'ssl', // ssl (465) or tls (587)
