@@ -527,6 +527,9 @@ $lines[] = 'Range: ' . ($estimate['display'] ?? '');
 $lines[] = 'Avg used: $' . number_format((float)($estimate['averageRevenue'] ?? 0), 0);
 $lines[] = '';
 $lines[] = 'Reply to the applicant business email to continue this lead.';
+$lines[] = '';
+$lines[] = 'If attachments are missing in this email, open: https://expressfundingai.com/leads-viewer.php';
+$lines[] = '(Log in with the sales@ mailbox password — statement files are stored with each lead.)';
 
 $bodyText = implode("\r\n", $lines);
 $replyTo = !empty($biz['email']) ? $biz['email'] : $from;
