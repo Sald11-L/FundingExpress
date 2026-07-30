@@ -17,8 +17,29 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   exit;
 }
 
-$to = 'sales@expressfundingai.com';
-$from = 'sales@expressfundingai.com';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'smtp-mailer.php';
+
+$mailCfg = [
+  'to' => 'sales@expressfundingai.com',
+  'from' => 'sales@expressfundingai.com',
+  'from_name' => 'FundingExpressAi',
+  'smtp_host' => 'smtp.hostinger.com',
+  'smtp_port' => 465,
+  'smtp_secure' => 'ssl',
+  'smtp_user' => 'sales@expressfundingai.com',
+  'smtp_pass' => '',
+  'smtp_timeout' => 30,
+];
+$configFile = __DIR__ . DIRECTORY_SEPARATOR . 'mail-config.php';
+if (is_file($configFile)) {
+  $loaded = include $configFile;
+  if (is_array($loaded)) {
+    $mailCfg = array_merge($mailCfg, $loaded);
+  }
+}
+
+$to = $mailCfg['to'];
+$from = $mailCfg['from'];
 
 $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
 $data = null;
@@ -265,47 +286,65 @@ $lines[] = 'Reply to the applicant business email to continue this lead.';
 $bodyText = implode("\r\n", $lines);
 $replyTo = !empty($biz['email']) ? $biz['email'] : $from;
 
-// Build multipart/mixed email — body as its own part, then each file
-$boundary = '=_FE_' . md5(uniqid((string)mt_rand(), true));
-
-$headers = 'From: FundingExpressAi <' . $from . '>' . "\r\n"
-  . 'Reply-To: ' . $replyTo . "\r\n"
-  . 'MIME-Version: 1.0' . "\r\n"
-  . 'Content-Type: multipart/mixed; boundary="' . $boundary . '"' . "\r\n"
-  . 'X-Mailer: FundingExpressAi';
-
-$message = '--' . $boundary . "\r\n"
-  . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
-  . 'Content-Transfer-Encoding: 8bit' . "\r\n\r\n"
-  . $bodyText . "\r\n";
-
-$attachedCount = 0;
+$attachPayload = [];
 foreach ($savedFiles as $f) {
   if (!is_file($f['path'])) continue;
-  $content = @file_get_contents($f['path']);
-  if ($content === false) continue;
-  // Skip huge attachments in email (still on disk)
-  if (strlen($content) > 8 * 1024 * 1024) continue;
-
-  $safeName = str_replace(['"', "\r", "\n"], '', $f['name']);
-  $mime = $f['mime'] ?: 'application/octet-stream';
-  $message .= '--' . $boundary . "\r\n"
-    . 'Content-Type: ' . $mime . '; name="' . $safeName . '"' . "\r\n"
-    . 'Content-Transfer-Encoding: base64' . "\r\n"
-    . 'Content-Disposition: attachment; filename="' . $safeName . '"' . "\r\n\r\n"
-    . chunk_split(base64_encode($content)) . "\r\n";
-  $attachedCount++;
+  $attachPayload[] = [
+    'path' => $f['path'],
+    'name' => $f['name'],
+    'mime' => $f['mime'] ?: 'application/octet-stream',
+  ];
 }
 
-$message .= '--' . $boundary . '--';
+$mailOk = false;
+$mailError = '';
+$mailVia = '';
 
-$encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-$envelope = '-f' . $from;
-$mailOk = @mail($to, $encodedSubject, $message, $headers, $envelope);
+// Preferred: authenticated SMTP (Hostinger requires this for reliable delivery)
+if (!empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE') {
+  $smtpResult = fe_smtp_send($mailCfg, [
+    'to' => $to,
+    'from' => $from,
+    'from_name' => $mailCfg['from_name'] ?? 'FundingExpressAi',
+    'reply_to' => $replyTo,
+    'subject' => $subject,
+    'body' => $bodyText,
+    'attachments' => $attachPayload,
+  ]);
+  $mailOk = !empty($smtpResult['ok']);
+  $mailError = $smtpResult['error'] ?? '';
+  $mailVia = $mailOk ? ('smtp:' . ($smtpResult['host'] ?? 'ok')) : 'smtp-failed';
+}
+
+// Fallback: PHP mail() plain text (often unreliable on Hostinger; no attachments)
 if (!$mailOk) {
-  // Retry without envelope flag (some hosts reject -f)
-  $mailOk = @mail($to, $encodedSubject, $message, $headers);
+  $plainHeaders = 'From: FundingExpressAi <' . $from . '>' . "\r\n"
+    . 'Reply-To: ' . $replyTo . "\r\n"
+    . 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
+    . 'X-Mailer: FundingExpressAi';
+  $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+  $fallbackBody = $bodyText . "\r\n\r\n[Note: attachments are saved on the server under uploads/" . $leadId . "/]";
+  $mailOk = @mail($to, $encodedSubject, $fallbackBody, $plainHeaders, '-f' . $from);
+  if (!$mailOk) {
+    $mailOk = @mail($to, $encodedSubject, $fallbackBody, $plainHeaders);
+  }
+  if ($mailOk) {
+    $mailVia = $mailVia === 'smtp-failed' ? 'mail-fallback-after-smtp' : 'mail';
+  } elseif ($mailError === '') {
+    $mailError = 'PHP mail() returned false. Configure SMTP via setup-mail.php';
+  }
 }
+
+@file_put_contents(
+  $baseDir . DIRECTORY_SEPARATOR . 'mail-log.txt',
+  date('c') . ' lead=' . $leadId . ' to=' . $to
+    . ' mailOk=' . ($mailOk ? '1' : '0')
+    . ' via=' . $mailVia
+    . ' files=' . count($savedFiles)
+    . ($mailError !== '' ? ' err=' . $mailError : '')
+    . "\n",
+  FILE_APPEND
+);
 
 $savedOk = is_file($leadDir . DIRECTORY_SEPARATOR . 'application.json');
 
@@ -314,11 +353,14 @@ if ($mailOk || $savedOk) {
     'ok' => true,
     'to' => $to,
     'mailOk' => (bool)$mailOk,
+    'mailVia' => $mailVia,
+    'mailError' => $mailOk ? '' : $mailError,
+    'smtpConfigured' => !empty($mailCfg['smtp_pass']) && $mailCfg['smtp_pass'] !== 'PUT_SALES_MAILBOX_PASSWORD_HERE',
     'leadId' => $leadId,
     'filesSaved' => count($savedFiles),
-    'filesAttached' => $attachedCount,
+    'filesAttached' => count($attachPayload),
   ]);
 } else {
   http_response_code(500);
-  echo json_encode(['ok' => false, 'error' => 'Could not save or email application']);
+  echo json_encode(['ok' => false, 'error' => 'Could not save or email application', 'mailError' => $mailError]);
 }

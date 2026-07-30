@@ -1,0 +1,4 @@
+# Protect mail credentials and logs
+<FilesMatch "^(mail-config\.php|mail-config\.sample\.php)$">
+  Require all denied
+</FilesMatch>

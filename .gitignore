@@ -7,3 +7,5 @@ Source/
 Thumbs.db
 uploads/*/
 !uploads/.htaccess
+mail-config.php
+uploads/mail-log.txt
