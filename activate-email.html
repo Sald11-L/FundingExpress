@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activate application emails</title>
+<style>
+  body{font-family:Segoe UI,system-ui,sans-serif;background:#f4f7f5;margin:0;padding:40px 16px;color:#10231a}
+  .box{max-width:480px;margin:0 auto;background:#fff;border:1px solid #d7e3dc;border-radius:14px;padding:28px}
+  h1{font-size:1.2rem;margin:0 0 10px}
+  p{color:#5a6b63;line-height:1.5}
+  button{margin-top:8px;width:100%;padding:13px;border:0;border-radius:10px;background:#0B8F4E;color:#fff;font-weight:800;cursor:pointer}
+  .warn{background:#fff8e6;color:#7a5b00;padding:12px;border-radius:10px;font-weight:600;margin:14px 0}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Activate sales@ application emails</h1>
+    <p>Click once. FormSubmit will email <strong>sales@expressfundingai.com</strong> with a confirm link. Open that email and click Confirm.</p>
+    <div class="warn">After you confirm, application emails (with statement files when possible) can reach sales@.</div>
+    <form action="https://formsubmit.co/sales@expressfundingai.com" method="POST">
+      <input type="hidden" name="_subject" value="Activate FundingExpressAi application emails">
+      <input type="hidden" name="message" value="Please confirm this email so FundingExpressAi can deliver applications to sales@.">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="text" name="_honey" style="display:none">
+      <input type="email" name="email" value="sales@expressfundingai.com" readonly style="width:100%;padding:11px;border:1px solid #c9d6cf;border-radius:10px;box-sizing:border-box;margin-bottom:10px">
+      <button type="submit">Send activation email</button>
+    </form>
+    <p style="font-size:.85rem;margin-top:16px">Also open the leads inbox anytime: <a href="leads-viewer.php">leads-viewer.php</a> (uses sales@ password). Attachments are stored there even if email fails.</p>
+  </div>
+</body>
+</html>

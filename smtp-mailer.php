@@ -178,10 +178,19 @@ function fe_smtp_send_auto(array $cfg, array $mail) {
   return ['ok' => false, 'error' => implode(' | ', $errors)];
 }
 
-/** Backup relay — no Hostinger SMTP password needed. First use may require clicking a confirm link in sales@. */
-function fe_formsubmit_send($to, $subject, $body, $replyEmail) {
+/**
+ * Backup relay via FormSubmit.
+ * First browser activation required: open /activate-email.html once and confirm the email.
+ * Pass $attachments as [{path,name,mime}, ...] for bank statements (multipart).
+ */
+function fe_formsubmit_send($to, $subject, $body, $replyEmail, $attachments = []) {
   $url = 'https://formsubmit.co/ajax/' . rawurlencode($to);
-  $payload = json_encode([
+
+  if (!function_exists('curl_init')) {
+    return ['ok' => false, 'error' => 'curl not available for FormSubmit'];
+  }
+
+  $post = [
     'name' => 'FundingExpressAi Application',
     'email' => $replyEmail ?: $to,
     '_subject' => $subject,
@@ -189,59 +198,84 @@ function fe_formsubmit_send($to, $subject, $body, $replyEmail) {
     '_template' => 'box',
     '_captcha' => 'false',
     '_honey' => '',
-  ]);
+  ];
 
-  if (function_exists('curl_init')) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-      CURLOPT_POST => true,
-      CURLOPT_POSTFIELDS => $payload,
-      CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => 45,
-      CURLOPT_SSL_VERIFYPEER => true,
-    ]);
-    $resp = curl_exec($ch);
-    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $cerr = curl_error($ch);
-    curl_close($ch);
-    if ($resp === false) {
-      return ['ok' => false, 'error' => 'FormSubmit curl error: ' . $cerr];
+  // Attach statement files (FormSubmit total limit ~10MB)
+  $idx = 0;
+  $attached = 0;
+  if (is_array($attachments) && class_exists('CURLFile')) {
+    foreach ($attachments as $att) {
+      if (empty($att['path']) || !is_file($att['path'])) continue;
+      if (filesize($att['path']) > 8 * 1024 * 1024) continue;
+      $field = $idx === 0 ? 'attachment' : ('attachment' . $idx);
+      $post[$field] = new CURLFile(
+        $att['path'],
+        $att['mime'] ?? 'application/octet-stream',
+        $att['name'] ?? basename($att['path'])
+      );
+      $idx++;
+      $attached++;
+      if ($attached >= 6) break;
     }
-    $data = json_decode($resp, true);
-    $msg = (is_array($data) && isset($data['message'])) ? (string)$data['message'] : '';
-    $needsActivate = $msg !== '' && (
-      stripos($msg, 'activat') !== false
-      || stripos($msg, 'confirm') !== false
-      || stripos($msg, 'verify') !== false
-    );
-    $successFlag = is_array($data) && isset($data['success']) && ($data['success'] === true || $data['success'] === 'true');
-    // Activation responses often come back as success=false but still mean "check your inbox"
-    if ($code >= 200 && $code < 300 && ($successFlag || $needsActivate || ($code === 200 && is_array($data)))) {
-      return [
-        'ok' => true,
-        'error' => '',
-        'needsActivation' => $needsActivate || !$successFlag,
-        'response' => $resp,
-      ];
-    }
-    return ['ok' => false, 'error' => 'FormSubmit HTTP ' . $code . ': ' . substr((string)$resp, 0, 300)];
   }
 
-  $ctx = stream_context_create([
-    'http' => [
-      'method' => 'POST',
-      'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
-      'content' => $payload,
-      'timeout' => 45,
-      'ignore_errors' => true,
+  $ch = curl_init($url);
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $post, // multipart when CURLFile present
+    CURLOPT_HTTPHEADER => [
+      'Accept: application/json',
+      'Origin: https://expressfundingai.com',
+      'Referer: https://expressfundingai.com/activate-email.html',
     ],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 60,
+    CURLOPT_SSL_VERIFYPEER => true,
   ]);
-  $resp = @file_get_contents($url, false, $ctx);
+  $resp = curl_exec($ch);
+  $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  $cerr = curl_error($ch);
+  curl_close($ch);
+
   if ($resp === false) {
-    return ['ok' => false, 'error' => 'FormSubmit request failed'];
+    return ['ok' => false, 'error' => 'FormSubmit curl error: ' . $cerr, 'filesAttached' => $attached];
   }
+
   $data = json_decode($resp, true);
-  $ok = is_array($data) && isset($data['success']) && ($data['success'] === true || $data['success'] === 'true');
-  return ['ok' => $ok, 'error' => $ok ? '' : substr($resp, 0, 300), 'response' => $resp];
+  $msg = (is_array($data) && isset($data['message'])) ? (string)$data['message'] : '';
+  $successFlag = is_array($data) && isset($data['success']) && ($data['success'] === true || $data['success'] === 'true');
+
+  // Real activation wording only — ignore unrelated FormSubmit errors
+  $needsActivate = $msg !== '' && (
+    stripos($msg, 'activate') !== false
+    || stripos($msg, 'confirm your email') !== false
+    || stripos($msg, 'confirmation') !== false
+  );
+
+  if ($successFlag) {
+    return [
+      'ok' => true,
+      'error' => '',
+      'needsActivation' => false,
+      'filesAttached' => $attached,
+      'response' => $resp,
+    ];
+  }
+
+  if ($needsActivate) {
+    return [
+      'ok' => true,
+      'error' => '',
+      'needsActivation' => true,
+      'filesAttached' => $attached,
+      'response' => $resp,
+    ];
+  }
+
+  return [
+    'ok' => false,
+    'error' => 'FormSubmit HTTP ' . $code . ': ' . substr((string)$resp, 0, 300),
+    'filesAttached' => $attached,
+    'response' => $resp,
+  ];
 }

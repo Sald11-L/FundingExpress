@@ -53,8 +53,8 @@ function fe_deliver_application_email($mailCfg, $smtpConfigured, $to, $from, $fr
   $mailError = [];
   $needsActivation = false;
 
-  // Channel A — FormSubmit (external relay; first time needs confirm link in sales@)
-  $fs = fe_formsubmit_send($to, $subject, $bodyText, $replyTo ?: $to);
+  // Channel A — FormSubmit (external relay; activate once via /activate-email.html)
+  $fs = fe_formsubmit_send($to, $subject, $bodyText, $replyTo ?: $to, $attachPayload);
   $channels['formsubmit'] = $fs;
   if (!empty($fs['ok'])) {
     $mailOk = true;
@@ -154,7 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['testsend'])) {
   $subject = 'FundingExpressAi TEST ' . date('Y-m-d H:i:s T');
   $body = "This is a delivery test to sales@expressfundingai.com.\n\n"
     . "Time: " . date('c') . "\n"
-    . "If you only see a FormSubmit activation email, click Confirm / Activate first, then open this test URL again.\n";
+    . "If email still does not arrive, open leads-viewer.php (sales@ password) — applications and bank statement files are saved there.\n"
+    . "First-time FormSubmit activation: open activate-email.html and confirm the email FormSubmit sends.\n";
   $result = fe_deliver_application_email(
     $mailCfg,
     $smtpConfigured,
@@ -167,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['testsend'])) {
     []
   );
   fe_mail_log('TESTSEND mailOk=' . ($result['ok'] ? '1' : '0') . ' via=' . $result['via'] . ' err=' . $result['error'] . ' activate=' . ($result['needsActivation'] ? '1' : '0'));
+  $smtpOk = !empty($result['channels']['smtp']['ok']);
   echo json_encode([
     'ok' => $result['ok'],
     'to' => $toAddress,
@@ -174,12 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['testsend'])) {
     'mailError' => $result['error'],
     'needsActivation' => $result['needsActivation'],
     'smtpConfigured' => $smtpConfigured,
+    'smtpAccepted' => $smtpOk,
     'channels' => $result['channels'],
-    'nextStep' => $result['needsActivation']
-      ? 'Check sales@ inbox/spam for an email from FormSubmit asking you to confirm. Click the confirm link, then reload this test URL.'
-      : ($result['ok']
-        ? 'Check sales@ inbox AND spam for subject: ' . $subject
-        : 'All channels failed. Re-run ?setup=1 with the correct sales@ mailbox password.'),
+    'attachmentsNote' => 'Bank statements are attached on SMTP (and FormSubmit after activation). They are ALWAYS saved in leads-viewer.php for download.',
+    'nextStep' => !$smtpOk && !$result['ok']
+      ? 'Open activate-email.html, confirm FormSubmit, then retry. Or use leads-viewer.php for attachments.'
+      : '1) Check sales@ webmail Inbox + Spam. 2) If empty, open https://expressfundingai.com/leads-viewer.php — files are there. 3) Activate FormSubmit via /activate-email.html if not done.',
   ], JSON_PRETTY_PRINT);
   exit;
 }
@@ -448,7 +450,8 @@ $data['uploadDebug'] = $uploadDebug;
   json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
 );
 
-$subject = 'New FundingExpressAi application — ' . $bizName;
+$subject = 'New FundingExpressAi application — ' . $bizName
+  . (count($savedFiles) ? ' (' . count($savedFiles) . ' statement file' . (count($savedFiles) === 1 ? '' : 's') . ')' : '');
 
 $lines = [];
 $lines[] = 'NEW APPLICATION — FundingExpressAi';
